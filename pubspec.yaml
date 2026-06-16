@@ -15,7 +15,6 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-
   flutter_bloc: ^9.1.1
   equatable: ^2.0.8
   dio: ^5.9.2
@@ -28,7 +27,6 @@ dependencies:
   connectivity_plus: ^7.0.0
   url_launcher: ^6.3.2
   json_annotation: ^4.9.0
-
   flutter_dotenv: ^5.2.1
 
 dev_dependencies:
@@ -40,11 +38,19 @@ dev_dependencies:
   json_serializable: ^6.11.0
   bloc_test: ^10.0.0
   mocktail: ^1.0.4
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
 
   assets:
     - .env
+    - assets/logo/app_logo.png
 
   generate: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/app_logo.png"
+  min_sdk_android: 21
