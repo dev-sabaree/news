@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:newsapp/l10n/app_localizations.dart';
 import '../../../../core/localization/localization_service.dart';
+import '../../../../core/themes/app_colors.dart';
+import '../../../../core/themes/app_text_styles.dart';
+import '../../../../core/themes/app_spacing.dart';
+import '../../../../core/themes/app_radius.dart';
+import '../../../../core/widgets/primary_button.dart';
 import '../../../../dependency_injection/injection.dart';
 import '../../../../routes/route_names.dart';
 
@@ -12,130 +16,191 @@ class LanguageSelectPage extends StatefulWidget {
   State<LanguageSelectPage> createState() => _LanguageSelectPageState();
 }
 
-class _LanguageSelectPageState extends State<LanguageSelectPage> {
+class _LanguageSelectPageState extends State<LanguageSelectPage>
+    with SingleTickerProviderStateMixin {
   String _selectedCode = 'en';
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _selectedCode =
-        sl<LocalizationService>().currentLocale.languageCode;
+    _selectedCode = sl<LocalizationService>().currentLocale.languageCode;
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(Icons.language, size: 80, color: Colors.blue),
-              const SizedBox(height: 24),
-              const Text(
-                'Select Language',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Spacer(),
+
+                // Icon
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppColors.sourceBadgeBackground,
+                    borderRadius: AppRadius.lgAll,
+                  ),
+                  child: const Icon(
+                    Icons.language_rounded,
+                    size: 36,
+                    color: AppColors.sourceBadgeText,
+                  ),
                 ),
-              ),
-              const Text(
-                'Seleccionar idioma',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-              const SizedBox(height: 48),
 
-              // English Option
-              _buildLanguageTile(
-                code: 'en',
-                label: 'English',
-                flag: '🇬🇧',
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.xxl),
 
-              // Spanish Option
-              _buildLanguageTile(
-                code: 'es',
-                label: 'Español',
-                flag: '🇪🇸',
-              ),
-              const SizedBox(height: 48),
+                Text(
+                  'Choose your\nlanguage',
+                  style: AppTextStyles.displayLarge,
+                ),
 
-              // Continue Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
+                const SizedBox(height: AppSpacing.sm),
+
+                Text(
+                  'Elige tu idioma',
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+
+                const SizedBox(height: AppSpacing.xxxl),
+
+                // English
+                _LanguageTile(
+                  code: 'en',
+                  label: 'English',
+                  nativeLabel: 'English',
+                  flag: '🇬🇧',
+                  isSelected: _selectedCode == 'en',
+                  onTap: () => setState(() => _selectedCode = 'en'),
+                ),
+
+                const SizedBox(height: AppSpacing.md),
+
+                // Spanish
+                _LanguageTile(
+                  code: 'es',
+                  label: 'Spanish',
+                  nativeLabel: 'Español',
+                  flag: '🇪🇸',
+                  isSelected: _selectedCode == 'es',
+                  onTap: () => setState(() => _selectedCode = 'es'),
+                ),
+
+                const Spacer(),
+
+                PrimaryButton(
+                  text: 'Continue / Continuar',
                   onPressed: () async {
                     await sl<LocalizationService>()
                         .setLocale(Locale(_selectedCode));
-                    if (mounted) {
-                      context.go(RouteNames.splash);
-                    }
+                    if (mounted) context.go(RouteNames.splash);
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Continue / Continuar',
-                    style: TextStyle(fontSize: 16),
-                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: AppSpacing.lg),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildLanguageTile({
-    required String code,
-    required String label,
-    required String flag,
-  }) {
-    final isSelected = _selectedCode == code;
+class _LanguageTile extends StatelessWidget {
+  final String code;
+  final String label;
+  final String nativeLabel;
+  final String flag;
+  final bool isSelected;
+  final VoidCallback onTap;
 
+  const _LanguageTile({
+    required this.code,
+    required this.label,
+    required this.nativeLabel,
+    required this.flag,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedCode = code;
-        });
-      },
+      onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.lg,
+        ),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue.shade50 : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected
+              ? AppColors.primary.withOpacity(0.05)
+              : AppColors.surface,
+          borderRadius: AppRadius.lgAll,
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey.shade300,
+            color: isSelected ? AppColors.primary : AppColors.border,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           children: [
-            Text(flag, style: const TextStyle(fontSize: 32)),
-            const SizedBox(width: 16),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight:
-                    isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.blue : Colors.black87,
+            Text(flag, style: const TextStyle(fontSize: 36)),
+            const SizedBox(width: AppSpacing.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(nativeLabel, style: AppTextStyles.headlineSmall),
+                  Text(label,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      )),
+                ],
               ),
             ),
-            const Spacer(),
-            if (isSelected)
-              const Icon(Icons.check_circle, color: Colors.blue, size: 24),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? AppColors.primary : Colors.transparent,
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : AppColors.border,
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check_rounded,
+                      size: 14, color: AppColors.textWhite)
+                  : null,
+            ),
           ],
         ),
       ),
