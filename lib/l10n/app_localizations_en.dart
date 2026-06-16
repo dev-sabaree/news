@@ -54,6 +54,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noContent => 'No content available';
 
   @override
+  String get tryDifferentKeywords => 'Try searching with different keywords';
+
+  @override
+  String get clearSearch => 'Clear Search';
+
+  @override
   String get login => 'Login';
 
   @override

@@ -25,14 +25,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
-    print('Datasource Login Called');
-
     final response = await supabase.auth.signInWithPassword(
       email: email,
       password: password,
     );
-
-    print('Datasource Login Success');
 
     return response;
   }
@@ -44,26 +40,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
-    print('Datasource Signup Called');
-
     final response = await supabase.auth.signUp(
       email: email,
       password: password,
       data: {'full_name': fullName, 'phone': phone},
     );
 
-    print('Datasource Signup Success');
-
     return response;
   }
 
   @override
   Future<void> logout() async {
-    print('Datasource Logout Called');
-
     await supabase.auth.signOut();
-
-    print('Datasource Logout Success');
   }
 
   @override

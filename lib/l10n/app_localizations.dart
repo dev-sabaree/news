@@ -188,6 +188,18 @@ abstract class AppLocalizations {
   /// **'No content available'**
   String get noContent;
 
+  /// No description provided for @tryDifferentKeywords.
+  ///
+  /// In en, this message translates to:
+  /// **'Try searching with different keywords'**
+  String get tryDifferentKeywords;
+
+  /// No description provided for @clearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Search'**
+  String get clearSearch;
+
   /// No description provided for @login.
   ///
   /// In en, this message translates to:

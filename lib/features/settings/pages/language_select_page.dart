@@ -117,7 +117,8 @@ class _LanguageSelectPageState extends State<LanguageSelectPage>
                   onPressed: () async {
                     await sl<LocalizationService>()
                         .setLocale(Locale(_selectedCode));
-                    if (mounted) context.go(RouteNames.splash);
+                    if (!context.mounted) return;
+                    context.go(RouteNames.splash);
                   },
                 ),
 
@@ -159,9 +160,7 @@ class _LanguageTile extends StatelessWidget {
           vertical: AppSpacing.lg,
         ),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary.withOpacity(0.05)
-              : AppColors.surface,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : AppColors.surface,
           borderRadius: AppRadius.lgAll,
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.border,

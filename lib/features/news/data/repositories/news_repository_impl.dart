@@ -17,7 +17,6 @@ class NewsRepositoryImpl implements NewsRepository {
       final articles = await remoteDataSource.getTopHeadlines(page: page);
 
       if (page == 1) {
-        print('Saving cache: ${articles.length}');
         await localStorageService.saveNews(
           articles.map((e) => jsonEncode(e.toJson())).toList(),
         );
@@ -25,24 +24,19 @@ class NewsRepositoryImpl implements NewsRepository {
 
       return articles.map((e) => e.toEntity()).toList();
     } catch (e) {
-      print('Loading cache...');
-
       try {
-        final cachedNews = await localStorageService.getNews();
-        print('Cached count: ${cachedNews.length}');
+        final cachedNews = localStorageService.getNews();
 
         if (cachedNews.isNotEmpty) {
           final mapped = cachedNews
               .map((e) => NewsModel.fromJson(jsonDecode(e)).toEntity())
               .toList();
-          print('MAPPED COUNT: ${mapped.length}'); // 👈 add this
-          return mapped; // 👈 does it reach here?
+
+          return mapped;
         }
 
-        print('CACHE EMPTY - rethrowing'); // 👈 add this
         rethrow;
       } catch (cacheError) {
-        print('CACHE ERROR: $cacheError'); // 👈 add this
         rethrow;
       }
     }
@@ -61,10 +55,9 @@ class NewsRepositoryImpl implements NewsRepository {
     return articles.map((e) => e.toEntity()).toList();
   }
 
-  // 👇 added
   @override
   Future<List<NewsEntity>> getCachedNews() async {
-    final cachedNews = await localStorageService.getNews();
+    final cachedNews = localStorageService.getNews();
 
     if (cachedNews.isEmpty) return [];
 

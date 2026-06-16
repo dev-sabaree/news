@@ -74,11 +74,10 @@ Future<void> configureDependencies() async {
     () => ConnectivityService(sl<Connectivity>()),
   );
 
-  sl.registerFactory<ConnectivityCubit>(
+  sl.registerLazySingleton<ConnectivityCubit>(
     () => ConnectivityCubit(connectivityService: sl<ConnectivityService>()),
   );
 
-  // configureDependencies() ഇൽ add ചെയ്യൂ:
   sl.registerLazySingleton<LocalizationService>(
     () => LocalizationService(sl<SharedPreferences>()),
   );

@@ -16,6 +16,8 @@
   "unknownSource": "Unknown Source",
   "noDescription": "No description available",
   "noContent": "No content available",
+  "tryDifferentKeywords": "Try searching with different keywords",
+  "clearSearch": "Clear Search",
 
   "login": "Login",
   "signup": "Sign Up",

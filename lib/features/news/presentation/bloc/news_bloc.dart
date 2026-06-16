@@ -7,7 +7,6 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
   final NewsRepository newsRepository;
 
   int currentPage = 1;
-  bool hasReachedMax = false;
   bool isLoadingMore = false;
 
   NewsBloc({required this.newsRepository}) : super(NewsInitial()) {
@@ -26,17 +25,16 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
     try {
       currentPage = 1;
       final articles = await newsRepository.getTopHeadlines(page: currentPage);
-      print(articles.first.title);
       emit(NewsLoaded(articles: articles, hasReachedMax: articles.isEmpty));
     } catch (e) {
-      // getTopHeadlines only rethrows when cache is also empty
-      // so attempt one more direct cache fetch for the UI banner
       try {
         final cachedNews = await newsRepository.getCachedNews();
-        emit(NewsError(
-          e.toString(),
-          cachedArticles: cachedNews.isNotEmpty ? cachedNews : null,
-        ));
+        emit(
+          NewsError(
+            e.toString(),
+            cachedArticles: cachedNews.isNotEmpty ? cachedNews : null,
+          ),
+        );
       } catch (_) {
         emit(NewsError(e.toString()));
       }
@@ -47,8 +45,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
     RefreshNews event,
     Emitter<NewsState> emit,
   ) async {
-    currentPage = 1;
-    hasReachedMax = false;
+    currentPage = 1; // 👈 hasReachedMax line remove ചെയ്തു
     add(FetchTopHeadlines());
   }
 
@@ -66,13 +63,14 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       );
       emit(NewsLoaded(articles: articles, hasReachedMax: articles.isEmpty));
     } catch (e) {
-      // On search failure, show cached headlines with offline banner
       try {
         final cachedNews = await newsRepository.getCachedNews();
-        emit(NewsError(
-          e.toString(),
-          cachedArticles: cachedNews.isNotEmpty ? cachedNews : null,
-        ));
+        emit(
+          NewsError(
+            e.toString(),
+            cachedArticles: cachedNews.isNotEmpty ? cachedNews : null,
+          ),
+        );
       } catch (_) {
         emit(NewsError(e.toString()));
       }
@@ -94,9 +92,6 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       isLoadingMore = true;
 
       final articles = await newsRepository.getTopHeadlines(page: currentPage);
-      print('CURRENT: ${currentState.articles.length}');
-      print('NEW: ${articles.length}');
-      print('TOTAL: ${currentState.articles.length + articles.length}');
 
       emit(
         NewsLoaded(
@@ -107,13 +102,18 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       isLoadingMore = false;
     } catch (e) {
       isLoadingMore = false;
-      currentPage--; // 👈 rollback page on failure
+      currentPage--;
 
       if (state is NewsLoaded) {
-        emit(state);
+        final current = state as NewsLoaded;
+        emit(
+          NewsLoaded(
+            articles: current.articles,
+            hasReachedMax: current.hasReachedMax,
+          ),
+        );
         return;
       }
-
       emit(const NewsError('Failed to load more news'));
     }
   }

@@ -13,7 +13,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) async {
-    print('Repository Login Called');
     final response = await remoteDataSource.login(
       email: email,
       password: password,
@@ -35,7 +34,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) async {
-    print('Repository Signup Called');
+  
     await remoteDataSource.signUp(
       fullName: fullName,
       phone: phone,
@@ -46,7 +45,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    print('Repository Logout Called');
+
 
     await remoteDataSource.logout();
   }

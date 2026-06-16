@@ -95,7 +95,7 @@ class _SplashPageState extends State<SplashPage>
                     width: 96,
                     height: 96,
                     decoration: BoxDecoration(
-                      color: AppColors.textWhite.withOpacity(0.15),
+                      color: AppColors.textWhite.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: const Icon(
@@ -116,7 +116,7 @@ class _SplashPageState extends State<SplashPage>
                   Text(
                     'Stay informed, stay ahead',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textWhite.withOpacity(0.7),
+                      color: AppColors.textWhite.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.massive),
@@ -124,7 +124,7 @@ class _SplashPageState extends State<SplashPage>
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(
-                      color: AppColors.textWhite.withOpacity(0.7),
+                      color: AppColors.textWhite.withValues(alpha: 0.7),
                       strokeWidth: 2,
                     ),
                   ),

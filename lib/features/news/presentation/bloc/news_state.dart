@@ -27,7 +27,7 @@ class NewsLoaded extends NewsState {
 
 class NewsError extends NewsState {
   final String message;
-  final List<NewsEntity>? cachedArticles; // 👈 added
+  final List<NewsEntity>? cachedArticles;
 
   const NewsError(this.message, {this.cachedArticles});
 
