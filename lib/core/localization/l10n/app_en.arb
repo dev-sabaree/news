@@ -36,5 +36,16 @@
   "language": "Language",
   "english": "English",
   "spanish": "Spanish",
-  "selectLanguage": "Select Language"
+  "selectLanguage": "Select Language",
+
+  "signupSuccess": "Account created successfully!",
+  "errorInvalidCredentials": "Invalid email or password. Please try again.",
+  "errorEmailNotConfirmed": "Please verify your email before logging in.",
+  "errorUserNotFound": "No account found with this email.",
+  "errorTooManyRequests": "Too many attempts. Please try again later.",
+  "errorNetworkError": "No internet connection. Please check your network.",
+  "errorInvalidEmail": "Please enter a valid email address.",
+  "errorWeakPassword": "Password is too weak. Use at least 6 characters.",
+  "errorEmailExists": "An account with this email already exists.",
+  "errorUnknown": "Something went wrong. Please try again."
 }

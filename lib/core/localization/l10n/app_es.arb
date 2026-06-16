@@ -36,5 +36,16 @@
   "language": "Idioma",
   "english": "Inglés",
   "spanish": "Español",
-  "selectLanguage": "Seleccionar idioma"
+  "selectLanguage": "Seleccionar idioma",
+
+  "signupSuccess": "¡Cuenta creada exitosamente!",
+  "errorInvalidCredentials": "Correo o contraseña incorrectos. Inténtalo de nuevo.",
+  "errorEmailNotConfirmed": "Por favor verifica tu correo antes de iniciar sesión.",
+  "errorUserNotFound": "No se encontró ninguna cuenta con este correo.",
+  "errorTooManyRequests": "Demasiados intentos. Inténtalo más tarde.",
+  "errorNetworkError": "Sin conexión a internet. Verifica tu red.",
+  "errorInvalidEmail": "Por favor ingresa un correo electrónico válido.",
+  "errorWeakPassword": "La contraseña es débil. Usa al menos 6 caracteres.",
+  "errorEmailExists": "Ya existe una cuenta con este correo electrónico.",
+  "errorUnknown": "Algo salió mal. Por favor inténtalo de nuevo."
 }

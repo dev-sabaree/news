@@ -10,6 +10,7 @@ import '../../../../core/themes/app_colors.dart';
 import '../../../../core/themes/app_text_styles.dart';
 import '../../../../core/themes/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/auth_error_localizer.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../routes/route_names.dart';
@@ -66,10 +67,17 @@ class _SignupPageState extends State<SignupPage> {
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.check_circle_outline,
-                      color: AppColors.textWhite, size: 18),
+                  const Icon(
+                    Icons.check_circle_outline,
+                    color: AppColors.textWhite,
+                    size: 18,
+                  ),
                   const SizedBox(width: AppSpacing.sm),
-                  Expanded(child: Text(state.message)),
+                  Expanded(
+                    child: Text(
+                      AuthErrorLocalizer.localize(l10n, state.messageKey), // 👈
+                    ),
+                  ),
                 ],
               ),
               backgroundColor: AppColors.success,
@@ -82,10 +90,17 @@ class _SignupPageState extends State<SignupPage> {
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.error_outline,
-                      color: AppColors.textWhite, size: 18),
+                  const Icon(
+                    Icons.error_outline,
+                    color: AppColors.textWhite,
+                    size: 18,
+                  ),
                   const SizedBox(width: AppSpacing.sm),
-                  Expanded(child: Text(state.message)),
+                  Expanded(
+                    child: Text(
+                      AuthErrorLocalizer.localize(l10n, state.errorCode), // 👈
+                    ),
+                  ),
                 ],
               ),
               backgroundColor: AppColors.error,
@@ -116,8 +131,11 @@ class _SignupPageState extends State<SignupPage> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: const Icon(Icons.arrow_back_rounded,
-                          size: 20, color: AppColors.textPrimary),
+                      child: const Icon(
+                        Icons.arrow_back_rounded,
+                        size: 20,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
 
@@ -143,7 +161,8 @@ class _SignupPageState extends State<SignupPage> {
                     prefixIcon: Icons.person_outline_rounded,
                     focusNode: _nameFocus,
                     textInputAction: TextInputAction.next,
-                    onEditingComplete: () => _nextFocus(_nameFocus, _phoneFocus),
+                    onEditingComplete: () =>
+                        _nextFocus(_nameFocus, _phoneFocus),
                     validator: (value) =>
                         Validators.validateName(context, value),
                   ),

@@ -110,4 +110,41 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get selectLanguage => 'Seleccionar idioma';
+
+  @override
+  String get signupSuccess => '¡Cuenta creada exitosamente!';
+
+  @override
+  String get errorInvalidCredentials =>
+      'Correo o contraseña incorrectos. Inténtalo de nuevo.';
+
+  @override
+  String get errorEmailNotConfirmed =>
+      'Por favor verifica tu correo antes de iniciar sesión.';
+
+  @override
+  String get errorUserNotFound =>
+      'No se encontró ninguna cuenta con este correo.';
+
+  @override
+  String get errorTooManyRequests =>
+      'Demasiados intentos. Inténtalo más tarde.';
+
+  @override
+  String get errorNetworkError => 'Sin conexión a internet. Verifica tu red.';
+
+  @override
+  String get errorInvalidEmail =>
+      'Por favor ingresa un correo electrónico válido.';
+
+  @override
+  String get errorWeakPassword =>
+      'La contraseña es débil. Usa al menos 6 caracteres.';
+
+  @override
+  String get errorEmailExists =>
+      'Ya existe una cuenta con este correo electrónico.';
+
+  @override
+  String get errorUnknown => 'Algo salió mal. Por favor inténtalo de nuevo.';
 }
