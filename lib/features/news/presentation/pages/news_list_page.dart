@@ -3,26 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:newsapp/l10n/app_localizations.dart';
-
-import '../widgets/news_card.dart';
-import '../bloc/news_bloc.dart';
-import '../bloc/news_event.dart';
-import '../bloc/news_state.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../../../core/connectivity/connectivity_cubit.dart';
-import '../../../../core/connectivity/connectivity_state.dart';
-import '../../../../core/themes/app_colors.dart';
-import '../../../../core/themes/app_text_styles.dart';
-import '../../../../core/themes/app_spacing.dart';
-import '../../../../core/themes/app_radius.dart';
-import '../../../../core/widgets/news_shimmer_card.dart';
-import '../../../../core/widgets/empty_state_widget.dart';
-import '../../../../core/widgets/error_state_widget.dart';
-import '../../../../core/widgets/offline_banner.dart';
-import '../../../../features/settings/widgets/language_switcher.dart';
-import '../../../../routes/route_names.dart';
+import 'package:newsapp/features/news/presentation/widgets/news_card.dart';
+import 'package:newsapp/features/news/presentation/bloc/news_bloc.dart';
+import 'package:newsapp/features/news/presentation/bloc/news_event.dart';
+import 'package:newsapp/features/news/presentation/bloc/news_state.dart';
+import 'package:newsapp/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:newsapp/features/auth/presentation/bloc/auth_event.dart';
+import 'package:newsapp/features/auth/presentation/bloc/auth_state.dart';
+import 'package:newsapp/core/themes/app_colors.dart';
+import 'package:newsapp/core/themes/app_text_styles.dart';
+import 'package:newsapp/core/themes/app_spacing.dart';
+import 'package:newsapp/core/themes/app_radius.dart';
+import 'package:newsapp/core/widgets/news_shimmer_card.dart';
+import 'package:newsapp/core/widgets/empty_state_widget.dart';
+import 'package:newsapp/core/widgets/error_state_widget.dart';
+import 'package:newsapp/features/settings/widgets/language_switcher.dart';
+import 'package:newsapp/routes/route_names.dart';
 
 class NewsListPage extends StatefulWidget {
   const NewsListPage({super.key});
@@ -130,6 +126,9 @@ class _NewsListPageState extends State<NewsListPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final authState = context.watch<AuthBloc>().state;
+    final userEmail =
+        authState is AuthAuthenticated ? authState.user.email : null;
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -138,10 +137,10 @@ class _NewsListPageState extends State<NewsListPage> {
         }
       },
       child: PopScope(
-        canPop: !_isSearching, // 👈 search open ആണെങ്കിൽ pop block
+        canPop: !_isSearching, //
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop && _isSearching) {
-            _closeSearch(); // 👈 search close ചെയ്യുക
+            _closeSearch();
           }
         },
         child: Scaffold(
@@ -162,16 +161,7 @@ class _NewsListPageState extends State<NewsListPage> {
                   },
                   onSearchChanged: _onSearchChanged,
                   l10n: l10n,
-                ),
-
-                // Offline banner
-                BlocBuilder<ConnectivityCubit, ConnectivityState>(
-                  builder: (context, connectivityState) {
-                    if (connectivityState is ConnectivityOffline) {
-                      return OfflineBanner(message: l10n.noInternet);
-                    }
-                    return const SizedBox.shrink();
-                  },
+                  userEmail: userEmail,
                 ),
 
                 // Body
@@ -187,8 +177,8 @@ class _NewsListPageState extends State<NewsListPage> {
                           return EmptyStateWidget(
                             icon: Icons.search_off_rounded,
                             title: l10n.noArticlesFound,
-                            subtitle: 'Try searching with different keywords',
-                            buttonText: 'Clear Search',
+                            subtitle: l10n.tryDifferentKeywords,
+                            buttonText: l10n.clearSearch,
                             onAction: _closeSearch,
                           );
                         }
@@ -239,6 +229,7 @@ class _NewsAppBar extends StatelessWidget {
   final VoidCallback onSearchToggle;
   final ValueChanged<String> onSearchChanged;
   final AppLocalizations l10n;
+  final String? userEmail;
 
   const _NewsAppBar({
     required this.searchController,
@@ -246,6 +237,7 @@ class _NewsAppBar extends StatelessWidget {
     required this.onSearchToggle,
     required this.onSearchChanged,
     required this.l10n,
+    required this.userEmail,
   });
 
   @override
@@ -275,8 +267,23 @@ class _NewsAppBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
-              Text('NewsApp', style: AppTextStyles.headlineMedium),
-              const Spacer(),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.appTitle, style: AppTextStyles.headlineMedium),
+                    if (userEmail != null && userEmail!.isNotEmpty)
+                      Text(
+                        '${l10n.signedInAs} $userEmail',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
               const LanguageSwitcher(),
               IconButton(
                 icon: Icon(

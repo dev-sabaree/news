@@ -1,4 +1,4 @@
-import '../entities/user_entity.dart';
+import 'package:newsapp/features/auth/domain/entities/user_entity.dart';
 
 abstract class AuthRepository {
   Future<UserEntity> login({
@@ -16,4 +16,6 @@ abstract class AuthRepository {
   Future<void> logout();
 
   bool get isLoggedIn;
+
+  UserEntity? get currentUser;
 }

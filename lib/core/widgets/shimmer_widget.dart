@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/themes/app_colors.dart';
-import '../../core/themes/app_radius.dart';
+import 'package:newsapp/core/themes/app_colors.dart';
+import 'package:newsapp/core/themes/app_radius.dart';
 
 class ShimmerWidget extends StatefulWidget {
   final double width;

@@ -1,9 +1,9 @@
-import '../../domain/entities/news_entity.dart';
-import '../../domain/repositories/news_repository.dart';
-import '../datasource/news_remote_datasource.dart';
+import 'package:newsapp/features/news/domain/entities/news_entity.dart';
+import 'package:newsapp/features/news/domain/repositories/news_repository.dart';
+import 'package:newsapp/features/news/data/datasource/news_remote_datasource.dart';
 import 'dart:convert';
-import '../../../../core/services/local_storage_service.dart';
-import '../models/news_model.dart';
+import 'package:newsapp/core/services/local_storage_service.dart';
+import 'package:newsapp/features/news/data/models/news_model.dart';
 
 class NewsRepositoryImpl implements NewsRepository {
   final NewsRemoteDataSource remoteDataSource;

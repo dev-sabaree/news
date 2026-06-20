@@ -12,13 +12,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'News App';
 
   @override
+  String get appTagline => 'Stay informed, stay ahead';
+
+  @override
   String get search => 'Search news...';
 
   @override
   String get noArticlesFound => 'No articles found';
 
   @override
-  String get noInternet => 'No internet — showing cached news';
+  String get noInternet => 'No internet - showing cached news';
 
   @override
   String get noInternetConnection => 'No Internet Connection';
@@ -63,7 +66,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Login';
 
   @override
+  String get loginSubtitle => 'Welcome back! Sign in to continue';
+
+  @override
   String get signup => 'Sign Up';
+
+  @override
+  String get signupSubtitle => 'Create your account to get started';
 
   @override
   String get email => 'Email';
@@ -82,6 +91,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout => 'Logout';
+
+  @override
+  String get signedInAs => 'Signed in as';
 
   @override
   String get alreadyHaveAccount => 'Already have an account?';

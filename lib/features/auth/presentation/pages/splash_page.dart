@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:newsapp/l10n/app_localizations.dart';
 
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
-import '../../../../core/localization/localization_service.dart';
-import '../../../../core/themes/app_colors.dart';
-import '../../../../core/themes/app_text_styles.dart';
-import '../../../../core/themes/app_spacing.dart';
-import '../../../../dependency_injection/injection.dart';
-import '../../../../routes/route_names.dart';
+import 'package:newsapp/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:newsapp/features/auth/presentation/bloc/auth_event.dart';
+import 'package:newsapp/features/auth/presentation/bloc/auth_state.dart';
+import 'package:newsapp/core/localization/localization_service.dart';
+import 'package:newsapp/core/themes/app_colors.dart';
+import 'package:newsapp/core/themes/app_text_styles.dart';
+import 'package:newsapp/core/themes/app_spacing.dart';
+import 'package:newsapp/dependency_injection/injection.dart';
+import 'package:newsapp/routes/route_names.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -72,6 +73,8 @@ class _SplashPageState extends State<SplashPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
@@ -106,7 +109,7 @@ class _SplashPageState extends State<SplashPage>
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    'NewsApp',
+                    l10n.appTitle,
                     style: AppTextStyles.displayLarge.copyWith(
                       color: AppColors.textWhite,
                       fontWeight: FontWeight.w800,
@@ -114,7 +117,7 @@ class _SplashPageState extends State<SplashPage>
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Stay informed, stay ahead',
+                    l10n.appTagline,
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textWhite.withValues(alpha: 0.7),
                     ),

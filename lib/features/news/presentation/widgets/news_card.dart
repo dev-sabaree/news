@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../../core/themes/app_colors.dart';
-import '../../../../core/themes/app_text_styles.dart';
-import '../../../../core/themes/app_spacing.dart';
-import '../../../../core/themes/app_radius.dart';
-import '../../../../core/widgets/shimmer_widget.dart';
-import '../../domain/entities/news_entity.dart';
+import 'package:newsapp/core/themes/app_colors.dart';
+import 'package:newsapp/core/themes/app_text_styles.dart';
+import 'package:newsapp/core/themes/app_spacing.dart';
+import 'package:newsapp/core/themes/app_radius.dart';
+import 'package:newsapp/core/widgets/shimmer_widget.dart';
+import 'package:newsapp/features/news/domain/entities/news_entity.dart';
 
 class NewsCard extends StatelessWidget {
   final NewsEntity article;

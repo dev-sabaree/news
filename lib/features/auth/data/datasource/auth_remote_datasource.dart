@@ -13,6 +13,8 @@ abstract class AuthRemoteDataSource {
   Future<void> logout();
 
   Session? getCurrentSession();
+
+  User? getCurrentUser();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -57,5 +59,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Session? getCurrentSession() {
     return supabase.auth.currentSession;
+  }
+
+  @override
+  User? getCurrentUser() {
+    return supabase.auth.currentUser;
   }
 }

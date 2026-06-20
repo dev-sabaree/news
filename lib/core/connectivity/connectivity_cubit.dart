@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../services/connectivity_service.dart';
+import 'package:newsapp/core/services/connectivity_service.dart';
 import 'connectivity_state.dart';
 
 class ConnectivityCubit extends Cubit<ConnectivityState> {

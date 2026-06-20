@@ -1,6 +1,6 @@
-import '../../../../core/errors/exceptions.dart';
-import '../../../../core/network/dio_client.dart';
-import '../models/news_model.dart';
+import 'package:newsapp/core/errors/exceptions.dart';
+import 'package:newsapp/core/network/dio_client.dart';
+import 'package:newsapp/features/news/data/models/news_model.dart';
 
 abstract class NewsRemoteDataSource {
   Future<List<NewsModel>> getTopHeadlines({required int page});

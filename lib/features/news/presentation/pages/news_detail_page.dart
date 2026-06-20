@@ -3,12 +3,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:newsapp/l10n/app_localizations.dart';
 
-import '../../domain/entities/news_entity.dart';
-import '../../../../core/themes/app_colors.dart';
-import '../../../../core/themes/app_text_styles.dart';
-import '../../../../core/themes/app_spacing.dart';
-import '../../../../core/themes/app_radius.dart';
-import '../../../../core/widgets/shimmer_widget.dart';
+import 'package:newsapp/features/news/domain/entities/news_entity.dart';
+import 'package:newsapp/core/themes/app_colors.dart';
+import 'package:newsapp/core/themes/app_text_styles.dart';
+import 'package:newsapp/core/themes/app_spacing.dart';
+import 'package:newsapp/core/themes/app_radius.dart';
+import 'package:newsapp/core/widgets/shimmer_widget.dart';
 
 class NewsDetailPage extends StatelessWidget {
   final NewsEntity article;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/themes/app_colors.dart';
-import '../../core/themes/app_radius.dart';
-import '../../core/themes/app_text_styles.dart';
+import 'package:newsapp/core/themes/app_colors.dart';
+import 'package:newsapp/core/themes/app_radius.dart';
+import 'package:newsapp/core/themes/app_text_styles.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;

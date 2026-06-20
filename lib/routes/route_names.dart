@@ -6,5 +6,5 @@ class RouteNames {
   static const signup = '/signup';
   static const news = '/news';
   static const newsDetail = '/news-detail';
-  static const languageSelect = '/language-select'; // 👈 add
+  static const languageSelect = '/language-select';
 }

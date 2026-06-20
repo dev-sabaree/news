@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:newsapp/features/auth/domain/entities/user_entity.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -8,22 +9,16 @@ abstract class AuthState extends Equatable {
 }
 
 class AuthInitial extends AuthState {}
+
 class AuthLoading extends AuthState {}
-class AuthAuthenticated extends AuthState {}
+
+class AuthAuthenticated extends AuthState {
+  final UserEntity user;
+
+  const AuthAuthenticated(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
 class AuthUnauthenticated extends AuthState {}
-
-class AuthSuccess extends AuthState {
-  final String messageKey; // 👈 key, not message
-  const AuthSuccess(this.messageKey);
-
-  @override
-  List<Object?> get props => [messageKey];
-}
-
-class AuthFailure extends AuthState {
-  final String errorCode; // 👈 code, not message
-  const AuthFailure(this.errorCode);
-
-  @override
-  List<Object?> get props => [errorCode];
-}

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/themes/app_radius.dart';
-import '../../core/themes/app_spacing.dart';
+import 'package:newsapp/core/themes/app_radius.dart';
+import 'package:newsapp/core/themes/app_spacing.dart';
 import 'shimmer_widget.dart';
 
 class NewsShimmerCard extends StatelessWidget {

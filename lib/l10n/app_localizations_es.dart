@@ -9,19 +9,22 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get appTitle => 'Aplicación de Noticias';
+  String get appTitle => 'Aplicacion de Noticias';
+
+  @override
+  String get appTagline => 'Mantente informado, mantente adelante';
 
   @override
   String get search => 'Buscar noticias...';
 
   @override
-  String get noArticlesFound => 'No se encontraron artículos';
+  String get noArticlesFound => 'No se encontraron articulos';
 
   @override
-  String get noInternet => 'Sin internet — mostrando noticias en caché';
+  String get noInternet => 'Sin internet - mostrando noticias en cache';
 
   @override
-  String get noInternetConnection => 'Sin conexión a Internet';
+  String get noInternetConnection => 'Sin conexion a Internet';
 
   @override
   String get failedToLoad => 'Error al cargar noticias';
@@ -30,7 +33,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get refresh => 'Actualizar';
 
   @override
-  String get readMore => 'Leer artículo completo';
+  String get readMore => 'Leer articulo completo';
 
   @override
   String get author => 'Autor';
@@ -48,7 +51,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get unknownSource => 'Fuente desconocida';
 
   @override
-  String get noDescription => 'No hay descripción disponible';
+  String get noDescription => 'No hay descripcion disponible';
 
   @override
   String get noContent => 'No hay contenido disponible';
@@ -57,100 +60,110 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tryDifferentKeywords => 'Intenta buscar con otras palabras clave';
 
   @override
-  String get clearSearch => 'Borrar búsqueda';
+  String get clearSearch => 'Borrar busqueda';
 
   @override
-  String get login => 'Iniciar sesión';
+  String get login => 'Iniciar sesion';
+
+  @override
+  String get loginSubtitle =>
+      'Bienvenido de nuevo. Inicia sesion para continuar';
 
   @override
   String get signup => 'Registrarse';
 
   @override
-  String get email => 'Correo electrónico';
+  String get signupSubtitle => 'Crea tu cuenta para comenzar';
 
   @override
-  String get password => 'Contraseña';
+  String get email => 'Correo electronico';
 
   @override
-  String get confirmPassword => 'Confirmar contraseña';
+  String get password => 'Contrasena';
+
+  @override
+  String get confirmPassword => 'Confirmar contrasena';
 
   @override
   String get fullName => 'Nombre completo';
 
   @override
-  String get phoneNumber => 'Número de teléfono';
+  String get phoneNumber => 'Numero de telefono';
 
   @override
-  String get logout => 'Cerrar sesión';
+  String get logout => 'Cerrar sesion';
 
   @override
-  String get alreadyHaveAccount => '¿Ya tienes una cuenta?';
+  String get signedInAs => 'Sesion iniciada como';
 
   @override
-  String get dontHaveAccount => '¿No tienes una cuenta?';
+  String get alreadyHaveAccount => 'Ya tienes una cuenta?';
 
   @override
-  String get invalidEmail => 'Ingresa un correo válido';
+  String get dontHaveAccount => 'No tienes una cuenta?';
+
+  @override
+  String get invalidEmail => 'Ingresa un correo valido';
 
   @override
   String get passwordTooShort =>
-      'La contraseña debe tener al menos 6 caracteres';
+      'La contrasena debe tener al menos 6 caracteres';
 
   @override
-  String get passwordsDoNotMatch => 'Las contraseñas no coinciden';
+  String get passwordsDoNotMatch => 'Las contrasenas no coinciden';
 
   @override
   String get fieldRequired => 'Este campo es obligatorio';
 
   @override
-  String get invalidPhone => 'Ingresa un número de teléfono válido';
+  String get invalidPhone => 'Ingresa un numero de telefono valido';
 
   @override
   String get language => 'Idioma';
 
   @override
-  String get english => 'Inglés';
+  String get english => 'Ingles';
 
   @override
-  String get spanish => 'Español';
+  String get spanish => 'Espanol';
 
   @override
   String get selectLanguage => 'Seleccionar idioma';
 
   @override
-  String get signupSuccess => '¡Cuenta creada exitosamente!';
+  String get signupSuccess => 'Cuenta creada exitosamente!';
 
   @override
   String get errorInvalidCredentials =>
-      'Correo o contraseña incorrectos. Inténtalo de nuevo.';
+      'Correo o contrasena incorrectos. Intentalo de nuevo.';
 
   @override
   String get errorEmailNotConfirmed =>
-      'Por favor verifica tu correo antes de iniciar sesión.';
+      'Por favor verifica tu correo antes de iniciar sesion.';
 
   @override
   String get errorUserNotFound =>
-      'No se encontró ninguna cuenta con este correo.';
+      'No se encontro ninguna cuenta con este correo.';
 
   @override
   String get errorTooManyRequests =>
-      'Demasiados intentos. Inténtalo más tarde.';
+      'Demasiados intentos. Intentalo mas tarde.';
 
   @override
-  String get errorNetworkError => 'Sin conexión a internet. Verifica tu red.';
+  String get errorNetworkError => 'Sin conexion a internet. Verifica tu red.';
 
   @override
   String get errorInvalidEmail =>
-      'Por favor ingresa un correo electrónico válido.';
+      'Por favor ingresa un correo electronico valido.';
 
   @override
   String get errorWeakPassword =>
-      'La contraseña es débil. Usa al menos 6 caracteres.';
+      'La contrasena es debil. Usa al menos 6 caracteres.';
 
   @override
   String get errorEmailExists =>
-      'Ya existe una cuenta con este correo electrónico.';
+      'Ya existe una cuenta con este correo electronico.';
 
   @override
-  String get errorUnknown => 'Algo salió mal. Por favor inténtalo de nuevo.';
+  String get errorUnknown => 'Algo salio mal. Por favor intentalo de nuevo.';
 }

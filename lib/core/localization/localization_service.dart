@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/constants/storage_keys.dart';
+import 'package:newsapp/core/constants/storage_keys.dart';
 
 class LocalizationService extends ChangeNotifier {
   final SharedPreferences _prefs;

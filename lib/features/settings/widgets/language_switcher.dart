@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newsapp/l10n/app_localizations.dart';
-import '../../../core/localization/localization_service.dart';
-import '../../../dependency_injection/injection.dart';
+import 'package:newsapp/core/localization/localization_service.dart';
+import 'package:newsapp/dependency_injection/injection.dart';
 
 class LanguageSwitcher extends StatelessWidget {
   const LanguageSwitcher({super.key});

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/localization/localization_service.dart';
-import '../../../../core/themes/app_colors.dart';
-import '../../../../core/themes/app_text_styles.dart';
-import '../../../../core/themes/app_spacing.dart';
-import '../../../../core/themes/app_radius.dart';
-import '../../../../core/widgets/primary_button.dart';
-import '../../../../dependency_injection/injection.dart';
-import '../../../../routes/route_names.dart';
+import 'package:newsapp/core/localization/localization_service.dart';
+import 'package:newsapp/core/themes/app_colors.dart';
+import 'package:newsapp/core/themes/app_radius.dart';
+import 'package:newsapp/core/themes/app_spacing.dart';
+import 'package:newsapp/core/themes/app_text_styles.dart';
+import 'package:newsapp/core/widgets/primary_button.dart';
+import 'package:newsapp/dependency_injection/injection.dart';
+import 'package:newsapp/routes/route_names.dart';
 
 class LanguageSelectPage extends StatefulWidget {
   const LanguageSelectPage({super.key});

@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'News App'**
   String get appTitle;
 
+  /// No description provided for @appTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay informed, stay ahead'**
+  String get appTagline;
+
   /// No description provided for @search.
   ///
   /// In en, this message translates to:
@@ -119,7 +125,7 @@ abstract class AppLocalizations {
   /// No description provided for @noInternet.
   ///
   /// In en, this message translates to:
-  /// **'No internet — showing cached news'**
+  /// **'No internet - showing cached news'**
   String get noInternet;
 
   /// No description provided for @noInternetConnection.
@@ -206,11 +212,23 @@ abstract class AppLocalizations {
   /// **'Login'**
   String get login;
 
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back! Sign in to continue'**
+  String get loginSubtitle;
+
   /// No description provided for @signup.
   ///
   /// In en, this message translates to:
   /// **'Sign Up'**
   String get signup;
+
+  /// No description provided for @signupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account to get started'**
+  String get signupSubtitle;
 
   /// No description provided for @email.
   ///
@@ -247,6 +265,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logout'**
   String get logout;
+
+  /// No description provided for @signedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as'**
+  String get signedInAs;
 
   /// No description provided for @alreadyHaveAccount.
   ///
