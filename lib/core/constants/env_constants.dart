@@ -6,7 +6,4 @@ class EnvConstants {
 
   static String get supabaseAnonKey =>
       dotenv.env['SUPABASE_ANON_KEY'] ?? '';
-
-  static String get newsApiKey =>
-      dotenv.env['NEWS_API_KEY'] ?? '';
 }
