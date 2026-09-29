@@ -166,41 +166,6 @@ class _NewsListPageState extends State<NewsListPage> {
                   userEmail: userEmail,
                 ),
 
-                BlocBuilder<ConnectivityCubit, ConnectivityState>(
-                  builder: (context, connectivityState) {
-                    if (connectivityState is ConnectivityOffline) {
-                      return Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg,
-                          vertical: AppSpacing.sm,
-                        ),
-                        color: AppColors.surface,
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.cloud_off_rounded,
-                              size: 18,
-                              color: AppColors.textSecondary,
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            Expanded(
-                              child: Text(
-                                l10n.noInternet,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    return const SizedBox.shrink();
-                  },
-                ),
-
                 // Body
                 Expanded(
                   child: BlocBuilder<NewsBloc, NewsState>(
@@ -321,6 +286,43 @@ class _NewsAppBar extends StatelessWidget {
                   ],
                 ),
               ),
+              BlocBuilder<ConnectivityCubit, ConnectivityState>(
+                builder: (context, connectivityState) {
+                  if (connectivityState is! ConnectivityOffline) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.offline.withValues(alpha: 0.10),
+                      borderRadius: AppRadius.fullAll,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.wifi_off_rounded,
+                          size: 14,
+                          color: AppColors.offline,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(
+                          'Offline',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.offline,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: AppSpacing.xs),
               const LanguageSwitcher(),
               IconButton(
                 icon: Icon(
