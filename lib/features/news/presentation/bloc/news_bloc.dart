@@ -38,7 +38,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       try {
         final cachedNews = await getCachedNewsUseCase();
         emit(
-          const NewsError(
+          NewsError(
             'failed_to_load',
             cachedArticles: cachedNews.isNotEmpty ? cachedNews : null,
           ),
@@ -74,7 +74,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       try {
         final cachedNews = await getCachedNewsUseCase();
         emit(
-          const NewsError(
+          NewsError(
             'failed_to_load',
             cachedArticles: cachedNews.isNotEmpty ? cachedNews : null,
           ),
