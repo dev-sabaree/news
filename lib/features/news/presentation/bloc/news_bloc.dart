@@ -108,7 +108,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         ),
       );
       isLoadingMore = false;
-    } catch (e) {
+    } catch (_) {
       isLoadingMore = false;
       currentPage--;
 
