@@ -38,13 +38,13 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       try {
         final cachedNews = await getCachedNewsUseCase();
         emit(
-          NewsError(
-            e.toString(),
+          const NewsError(
+            'failed_to_load',
             cachedArticles: cachedNews.isNotEmpty ? cachedNews : null,
           ),
         );
       } catch (_) {
-        emit(NewsError(e.toString()));
+        emit(const NewsError('failed_to_load'));
       }
     }
   }
@@ -74,13 +74,13 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       try {
         final cachedNews = await getCachedNewsUseCase();
         emit(
-          NewsError(
-            e.toString(),
+          const NewsError(
+            'failed_to_load',
             cachedArticles: cachedNews.isNotEmpty ? cachedNews : null,
           ),
         );
       } catch (_) {
-        emit(NewsError(e.toString()));
+        emit(const NewsError('failed_to_load'));
       }
     }
   }
