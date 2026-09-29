@@ -142,12 +142,11 @@ class _LoginPageState extends State<LoginPage> {
                             FocusScope.of(context).unfocus();
                             if (_formKey.currentState!.validate()) {
                               context.read<LoginBloc>().add(
-                                    LoginRequested(
-                                      email: _emailController.text.trim(),
-                                      password:
-                                          _passwordController.text.trim(),
-                                    ),
-                                  );
+                                LoginRequested(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text,
+                                ),
+                              );
                             }
                           },
                         );

@@ -204,8 +204,7 @@ class _SignupPageState extends State<SignupPage> {
                       obscureText: true,
                       focusNode: _confirmFocus,
                       textInputAction: TextInputAction.done,
-                      validator: (value) =>
-                          Validators.validateConfirmPassword(
+                      validator: (value) => Validators.validateConfirmPassword(
                         context,
                         value,
                         _passwordController.text,
@@ -221,14 +220,13 @@ class _SignupPageState extends State<SignupPage> {
                             FocusScope.of(context).unfocus();
                             if (_formKey.currentState!.validate()) {
                               context.read<SignUpBloc>().add(
-                                    SignUpRequested(
-                                      fullName: _nameController.text.trim(),
-                                      phone: _phoneController.text.trim(),
-                                      email: _emailController.text.trim(),
-                                      password:
-                                          _passwordController.text.trim(),
-                                    ),
-                                  );
+                                SignUpRequested(
+                                  fullName: _nameController.text.trim(),
+                                  phone: _phoneController.text.trim(),
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text,
+                                ),
+                              );
                             }
                           },
                         );
