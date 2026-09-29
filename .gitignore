@@ -49,3 +49,6 @@ app.*.map.json
 
 # Supabase
 supabase/.temp/
+# Android release signing
+/android/key.properties
+/android/*.jks
