@@ -1,9 +1,9 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("dev.flutter.flutter-gradle-plugin")
 }
-
-import java.util.Properties
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
@@ -46,7 +46,7 @@ android {
     buildTypes {
         release {
             // Local builds use debug signing until key.properties is configured.
-            // CI creates key.properties and uses the release keystore.
+            // CI will use the release keystore when key.properties is provided.
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
