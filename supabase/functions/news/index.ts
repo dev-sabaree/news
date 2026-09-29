@@ -1,125 +1,340 @@
-declare const Deno: {
-  serve: (handler: (req: Request) => Promise<Response> | Response) => void;
-  env: {
-    get: (key: string) => string | undefined;
-  };
-};
+import { withSupabase } from '@supabase/server';
+import { Redis } from '@upstash/redis';
+import { Ratelimit } from '@upstash/ratelimit';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers':
-      'authorization, x-client-info, apikey, content-type',
+    'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
 };
 
 const newsApiBaseUrl = 'https://newsapi.org/v2';
 
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: corsHeaders,
-    });
-  }
+// ---------------------------
+// Redis / Rate limiter
+// ---------------------------
 
-  if (req.method !== 'GET') {
-    return json(
-      {
-        status: 'error',
-        message: 'Method not allowed',
-      },
-      405,
-    );
-  }
+const redisUrl = Deno.env.get('UPSTASH_REDIS_REST_URL');
+const redisToken = Deno.env.get('UPSTASH_REDIS_REST_TOKEN');
 
-  const apiKey = Deno.env.get('NEWS_API_KEY');
+const redis =
+  redisUrl && redisToken
+    ? new Redis({
+        url: redisUrl,
+        token: redisToken,
+      })
+    : null;
 
-  if (!apiKey) {
-    console.error('NEWS_API_KEY is not configured');
+const ratelimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, '10 s'),
+      analytics: true,
+    })
+  : null;
 
-    return json(
-      {
-        status: 'error',
-        message: 'News service is not configured',
-      },
-      500,
-    );
-  }
+export default {
+  fetch: withSupabase(
+    { auth: 'user' },
+    async (req, ctx) => {
+      if (req.method === 'OPTIONS') {
+        return new Response('ok', {
+          headers: corsHeaders,
+        });
+      }
 
-  const requestUrl = new URL(req.url);
+      if (req.method !== 'GET') {
+        return json(
+          {
+            status: 'error',
+            message: 'Method not allowed',
+          },
+          405,
+        );
+      }
 
-  const path = requestUrl.pathname.endsWith('/top-headlines')
-    ? '/top-headlines'
-    : requestUrl.pathname.endsWith('/everything')
-        ? '/everything'
-        : '/';
+      // ---------------------------
+      // Authentication
+      // ---------------------------
 
-  let endpoint: string;
+      if (!ctx.userClaims) {
+        return json(
+          {
+            status: 'error',
+            message: 'Unauthorized',
+          },
+          401,
+        );
+      }
 
-  if (path === '/top-headlines') {
-    endpoint = '/top-headlines';
-  } else if (path === '/everything') {
-    endpoint = '/everything';
-  } else {
-    return json(
-      {
-        status: 'error',
-        message: 'Unknown news endpoint',
-      },
-      404,
-    );
-  }
+      // ---------------------------
+      // Rate limiting
+      // ---------------------------
 
-  const allowedParams = [
-    'country',
-    'page',
-    'pageSize',
-    'q',
-  ];
+      if (!ratelimit) {
+        console.error('Rate limiter is not configured');
 
-  const params = new URLSearchParams();
+        return json(
+          {
+            status: 'error',
+            message: 'Service temporarily unavailable',
+          },
+          503,
+        );
+      }
 
-  for (const name of allowedParams) {
-    const value = requestUrl.searchParams.get(name);
+      const userId = ctx.userClaims.id;
 
-    if (value !== null && value.length > 0) {
-      params.set(name, value);
-    }
-  }
+      try {
+        const rateLimitResult = await ratelimit.limit(
+          `user:${userId}`,
+        );
 
-  const response = await fetch(
-    `${newsApiBaseUrl}${endpoint}?${params.toString()}`,
-    {
-      headers: {
-        'X-Api-Key': apiKey,
-      },
+        if (!rateLimitResult.success) {
+          const retryAfter = Math.max(
+            1,
+            Math.ceil(
+              (rateLimitResult.reset - Date.now()) / 1000,
+            ),
+          );
+
+          return json(
+            {
+              status: 'error',
+              message: 'Too many requests',
+            },
+            429,
+            {
+              'Retry-After': retryAfter.toString(),
+              'X-RateLimit-Limit':
+                rateLimitResult.limit.toString(),
+              'X-RateLimit-Remaining': '0',
+            },
+          );
+        }
+      } catch (error) {
+        console.error('Rate limiter error:', error);
+
+        return json(
+          {
+            status: 'error',
+            message: 'Service temporarily unavailable',
+          },
+          503,
+        );
+      }
+
+      // ---------------------------
+      // NewsAPI secret
+      // ---------------------------
+
+      const apiKey = Deno.env.get('NEWS_API_KEY');
+
+      if (!apiKey) {
+        console.error('NEWS_API_KEY is not configured');
+
+        return json(
+          {
+            status: 'error',
+            message: 'News service is not configured',
+          },
+          500,
+        );
+      }
+
+      const requestUrl = new URL(req.url);
+
+      // ---------------------------
+      // Determine endpoint
+      // ---------------------------
+
+      const path = requestUrl.pathname.endsWith(
+        '/top-headlines',
+      )
+        ? '/top-headlines'
+        : requestUrl.pathname.endsWith('/everything')
+            ? '/everything'
+            : '/';
+
+      let endpoint: string;
+
+      if (path === '/top-headlines') {
+        endpoint = '/top-headlines';
+      } else if (path === '/everything') {
+        endpoint = '/everything';
+      } else {
+        return json(
+          {
+            status: 'error',
+            message: 'Unknown news endpoint',
+          },
+          404,
+        );
+      }
+
+      // ---------------------------
+      // Request validation
+      // ---------------------------
+
+      const rawPage = requestUrl.searchParams.get('page');
+      const rawPageSize =
+        requestUrl.searchParams.get('pageSize');
+      const country =
+        requestUrl.searchParams.get('country');
+      const query = requestUrl.searchParams.get('q');
+
+      const page = rawPage ? Number(rawPage) : 1;
+      const pageSize = rawPageSize
+        ? Number(rawPageSize)
+        : 20;
+
+      // Page: 1-100
+      if (
+        !Number.isInteger(page) ||
+        page < 1 ||
+        page > 100
+      ) {
+        return json(
+          {
+            status: 'error',
+            message: 'Invalid page',
+          },
+          400,
+        );
+      }
+
+      // Page size: 1-20
+      if (
+        !Number.isInteger(pageSize) ||
+        pageSize < 1 ||
+        pageSize > 20
+      ) {
+        return json(
+          {
+            status: 'error',
+            message: 'Invalid pageSize',
+          },
+          400,
+        );
+      }
+
+      const params = new URLSearchParams();
+
+      params.set('page', page.toString());
+      params.set('pageSize', pageSize.toString());
+
+      // ---------------------------
+      // Top headlines validation
+      // ---------------------------
+
+      if (endpoint === '/top-headlines') {
+        if (!country) {
+          return json(
+            {
+              status: 'error',
+              message: 'Country is required',
+            },
+            400,
+          );
+        }
+
+        const normalizedCountry = country
+          .trim()
+          .toLowerCase();
+
+        if (!/^[a-z]{2}$/.test(normalizedCountry)) {
+          return json(
+            {
+              status: 'error',
+              message: 'Invalid country',
+            },
+            400,
+          );
+        }
+
+        params.set('country', normalizedCountry);
+      }
+
+      // ---------------------------
+      // Search validation
+      // ---------------------------
+
+      if (endpoint === '/everything') {
+        if (!query) {
+          return json(
+            {
+              status: 'error',
+              message: 'Search query is required',
+            },
+            400,
+          );
+        }
+
+        const normalizedQuery = query.trim();
+
+        if (normalizedQuery.length === 0) {
+          return json(
+            {
+              status: 'error',
+              message: 'Search query is required',
+            },
+            400,
+          );
+        }
+
+        if (normalizedQuery.length > 100) {
+          return json(
+            {
+              status: 'error',
+              message: 'Search query is too long',
+            },
+            400,
+          );
+        }
+
+        params.set('q', normalizedQuery);
+      }
+
+      // ---------------------------
+      // NewsAPI request
+      // ---------------------------
+
+      const response = await fetch(
+        `${newsApiBaseUrl}${endpoint}?${params.toString()}`,
+        {
+          headers: {
+            'X-Api-Key': apiKey,
+          },
+        },
+      );
+
+      const body = await response.text();
+
+      return new Response(body, {
+        status: response.status,
+        headers: {
+          ...corsHeaders,
+          'Content-Type':
+            response.headers.get('content-type') ??
+            'application/json',
+        },
+      });
     },
-  );
-
-  const body = await response.text();
-
-  return new Response(body, {
-    status: response.status,
-    headers: {
-      ...corsHeaders,
-      'Content-Type':
-          response.headers.get('content-type') ??
-          'application/json',
-    },
-  });
-});
+  ),
+};
 
 function json(
   body: Record<string, unknown>,
   status: number,
+  extraHeaders: Record<string, string> = {},
 ) {
-  return new Response(
-    JSON.stringify(body),
-    {
-      status,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-      },
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+      ...extraHeaders,
     },
-  );
+  });
 }

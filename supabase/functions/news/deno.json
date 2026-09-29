@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@supabase/server": "npm:@supabase/server@^1.8.0",
+    "@upstash/ratelimit": "npm:@upstash/ratelimit@^2.2.0",
+    "@upstash/redis": "npm:@upstash/redis@^1.39.0"
+  }
+}
