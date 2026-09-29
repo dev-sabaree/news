@@ -4,7 +4,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:newsapp/l10n/app_localizations.dart';
 
 import 'core/connectivity/connectivity_cubit.dart';
-import 'core/connectivity/connectivity_state.dart';
 import 'core/themes/app_theme.dart';
 import 'core/localization/localization_service.dart';
 import 'routes/app_router.dart';
