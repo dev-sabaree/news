@@ -17,6 +17,8 @@ import 'package:newsapp/core/themes/app_radius.dart';
 import 'package:newsapp/core/widgets/news_shimmer_card.dart';
 import 'package:newsapp/core/widgets/empty_state_widget.dart';
 import 'package:newsapp/core/widgets/error_state_widget.dart';
+import 'package:newsapp/core/connectivity/connectivity_cubit.dart';
+import 'package:newsapp/core/connectivity/connectivity_state.dart';
 import 'package:newsapp/features/settings/widgets/language_switcher.dart';
 import 'package:newsapp/routes/route_names.dart';
 
@@ -162,6 +164,41 @@ class _NewsListPageState extends State<NewsListPage> {
                   onSearchChanged: _onSearchChanged,
                   l10n: l10n,
                   userEmail: userEmail,
+                ),
+
+                BlocBuilder<ConnectivityCubit, ConnectivityState>(
+                  builder: (context, connectivityState) {
+                    if (connectivityState is ConnectivityOffline) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.sm,
+                        ),
+                        color: AppColors.surface,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.cloud_off_rounded,
+                              size: 18,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Text(
+                                l10n.noInternet,
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return const SizedBox.shrink();
+                  },
                 ),
 
                 // Body
