@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -29,11 +30,18 @@ class ConnectivityCubit extends Cubit<ConnectivityState> {
   void _listenConnectionChanges() {
     _subscription = connectivityService.onConnectivityChanged.listen((
       result,
-    ) {
+    ) async {
       if (result.contains(ConnectivityResult.none)) {
         emit(ConnectivityOffline());
-      } else {
+        return;
+      }
+
+      final hasInternet = await connectivityService.hasInternetAccess();
+
+      if (hasInternet) {
         emit(ConnectivityOnline());
+      } else {
+        emit(ConnectivityOffline());
       }
     });
   }
