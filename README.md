@@ -283,10 +283,11 @@ flutter pub get
 Create a `.env` file in the project root:
 
 ```env
-NEWS_API_KEY=your_newsapi_key
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_publishable_key
 ```
+
+> The NewsAPI key is kept server-side in the Supabase Edge Function and is never bundled into the Flutter APK.
 
 The application reads these values through `flutter_dotenv`.
 
@@ -323,14 +324,18 @@ The application uses NewsAPI for:
 * Article search
 * Pagination
 
-Create an API key from the NewsAPI service and add it to `.env`.
+Create an API key from the NewsAPI service and store it as the `NEWS_API_KEY` secret in your Supabase Edge Function environment. Do **not** put the NewsAPI key in the Flutter `.env` file.
 
-The application communicates with endpoints such as:
+The Flutter app calls a Supabase Edge Function, which securely proxies these NewsAPI operations:
 
 ```text
+Flutter App → Supabase Edge Function → NewsAPI
+
 GET /top-headlines
 GET /everything
 ```
+
+The NewsAPI credential stays on the server-side Edge Function.
 
 ### Supabase
 
@@ -412,7 +417,7 @@ The repository includes a GitHub Actions workflow at `.github/workflows/android-
 When you push a version tag such as `v1.0.0`, GitHub Actions will:
 
 1. Install the latest stable Flutter SDK.
-2. Create `.env` from GitHub Actions secrets.
+2. Create `.env` from the Supabase URL and publishable key GitHub Actions secrets.
 3. Install dependencies.
 4. Generate JSON serialization code.
 5. Run `flutter analyze`.
@@ -425,7 +430,6 @@ When you push a version tag such as `v1.0.0`, GitHub Actions will:
 Add these repository secrets under **Settings → Secrets and variables → Actions**:
 
 ```text
-NEWS_API_KEY
 SUPABASE_URL
 SUPABASE_ANON_KEY
 ```
@@ -477,7 +481,7 @@ dart format lib test
 
 ## 🔐 Security
 
-Environment-specific credentials are loaded using `.env`.
+The Flutter client loads only the Supabase URL and publishable key from `.env`. The NewsAPI secret is stored server-side in the Supabase Edge Function and is not shipped with the APK.
 
 The `.gitignore` configuration already excludes:
 
