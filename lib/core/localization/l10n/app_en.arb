@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appTitle": "News App",
+  "appTitle": "Newsilo",
   "appTagline": "Stay informed, stay ahead",
   "search": "Search news...",
   "noArticlesFound": "No articles found",

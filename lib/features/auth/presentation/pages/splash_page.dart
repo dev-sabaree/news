@@ -1,16 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:newsapp/l10n/app_localizations.dart';
 
+import 'package:newsapp/core/localization/localization_service.dart';
+import 'package:newsapp/dependency_injection/injection.dart';
 import 'package:newsapp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:newsapp/features/auth/presentation/bloc/auth_event.dart';
 import 'package:newsapp/features/auth/presentation/bloc/auth_state.dart';
-import 'package:newsapp/core/localization/localization_service.dart';
-import 'package:newsapp/core/themes/app_colors.dart';
-import 'package:newsapp/core/themes/app_text_styles.dart';
-import 'package:newsapp/core/themes/app_spacing.dart';
-import 'package:newsapp/dependency_injection/injection.dart';
 import 'package:newsapp/routes/route_names.dart';
 
 class SplashPage extends StatefulWidget {
@@ -22,9 +20,10 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
+  late final AnimationController _animationController;
+  late final Animation<double> _fadeAnimation;
+
+  Timer? _sessionTimer;
 
   @override
   void initState() {
@@ -32,106 +31,70 @@ class _SplashPageState extends State<SplashPage>
 
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 600),
+      value: 1.0,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0, 0.6, curve: Curves.easeOut),
-      ),
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.7, end: 1).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0, 0.6, curve: Curves.easeOutBack),
-      ),
-    );
+    _sessionTimer = Timer(const Duration(seconds: 2), _checkSession);
+  }
 
-    _animationController.forward();
+  void _checkSession() {
+    if (!mounted) return;
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
+    final isLanguageSelected = sl<LocalizationService>().isLanguageSelected;
 
-      final isLanguageSelected = sl<LocalizationService>().isLanguageSelected;
+    if (!isLanguageSelected) {
+      _fadeAndNavigate(RouteNames.languageSelect);
+      return;
+    }
 
-      if (!isLanguageSelected) {
-        context.go(RouteNames.languageSelect);
-        return;
-      }
+    context.read<AuthBloc>().add(CheckSessionRequested());
+  }
 
-      context.read<AuthBloc>().add(CheckSessionRequested());
-    });
+  Future<void> _fadeAndNavigate(String route) async {
+    await _animationController.reverse();
+
+    if (!mounted) return;
+
+    context.go(route);
   }
 
   @override
   void dispose() {
+    _sessionTimer?.cancel();
     _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is AuthAuthenticated) {
-          context.go(RouteNames.news);
+          await _fadeAndNavigate(RouteNames.news);
         }
+
         if (state is AuthUnauthenticated) {
-          context.go(RouteNames.login);
+          await _fadeAndNavigate(RouteNames.login);
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.primary,
+        backgroundColor: Colors.white,
         body: Center(
           child: FadeTransition(
             opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      color: AppColors.textWhite.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: const Icon(
-                      Icons.newspaper_rounded,
-                      size: 52,
-                      color: AppColors.textWhite,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  Text(
-                    l10n.appTitle,
-                    style: AppTextStyles.displayLarge.copyWith(
-                      color: AppColors.textWhite,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    l10n.appTagline,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textWhite.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.massive),
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      color: AppColors.textWhite.withValues(alpha: 0.7),
-                      strokeWidth: 2,
-                    ),
-                  ),
-                ],
+            child: const RepaintBoundary(
+              child: Image(
+                image: AssetImage('assets/logo/app_logo.png'),
+                width: 175,
+                height: 175,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
               ),
             ),
           ),

@@ -26,7 +26,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckSessionRequested>(_onCheckSessionRequested);
 
-    _authStateSubscription = supabaseClient.auth.onAuthStateChange.listen((_) {
+    _authStateSubscription = supabaseClient.auth.onAuthStateChange.listen((
+      data,
+    ) {
+      // The splash screen performs the initial session check.
+      // Ignore Supabase's initial session event here so it
+      // does not navigate away from the splash immediately.
+      if (data.event == supabase.AuthChangeEvent.initialSession) {
+        return;
+      }
+
       add(CheckSessionRequested());
     });
   }

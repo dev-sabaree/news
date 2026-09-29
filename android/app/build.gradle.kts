@@ -7,8 +7,9 @@ plugins {
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
+val hasReleaseKeystore = keystorePropertiesFile.exists()
 
-if (keystorePropertiesFile.exists()) {
+if (hasReleaseKeystore) {
     keystorePropertiesFile.inputStream().use {
         keystoreProperties.load(it)
     }
@@ -33,7 +34,7 @@ android {
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
+        if (hasReleaseKeystore) {
             create("release") {
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
@@ -45,13 +46,14 @@ android {
 
     buildTypes {
         release {
-            // Local builds use debug signing until key.properties is configured.
-            // CI will use the release keystore when key.properties is provided.
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
+            if (!hasReleaseKeystore) {
+                throw GradleException(
+                    "Release signing is not configured. " +
+                        "Create android/key.properties and provide the release keystore."
+                )
             }
+
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

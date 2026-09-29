@@ -25,7 +25,7 @@ class App extends StatelessWidget {
         builder: (context, _) {
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
-            title: 'News App',
+            title: 'Newsilo',
             theme: AppTheme.lightTheme,
             routerConfig: appRouter,
             locale: sl<LocalizationService>().currentLocale,

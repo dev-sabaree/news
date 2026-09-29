@@ -18,7 +18,7 @@
     </queries>
 
     <application
-        android:label="NewsFlow"
+        android:label="Newsilo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
