@@ -7,6 +7,7 @@ abstract class LocalStorageService {
 
   Future<void> saveNews(List<String> articles);
   List<String> getNews();
+  DateTime? getNewsCacheTimestamp();
 }
 
 class LocalStorageServiceImpl implements LocalStorageService {
@@ -26,11 +27,27 @@ class LocalStorageServiceImpl implements LocalStorageService {
 
   @override
   Future<void> saveNews(List<String> articles) async {
-    await prefs.setStringList(StorageKeys.cachedNews, articles);
+    final saved = await prefs.setStringList(StorageKeys.cachedNews, articles);
+    if (!saved) {
+      return;
+    }
+
+    await prefs.setInt(
+      StorageKeys.cachedNewsTimestamp,
+      DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   @override
   List<String> getNews() {
     return prefs.getStringList(StorageKeys.cachedNews) ?? [];
+  }
+
+  @override
+  DateTime? getNewsCacheTimestamp() {
+    final timestamp = prefs.getInt(StorageKeys.cachedNewsTimestamp);
+    return timestamp == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(timestamp);
   }
 }

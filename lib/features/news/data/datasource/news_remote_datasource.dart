@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:newsapp/core/errors/exceptions.dart';
 import 'package:newsapp/core/network/dio_client.dart';
 import 'package:newsapp/features/news/data/models/news_model.dart';
@@ -27,7 +28,9 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
       final articles = response.data['articles'] as List;
 
       return articles.map((article) => NewsModel.fromJson(article)).toList();
-    } catch (e) {
+    } on DioException catch (error) {
+      throw _mapDioException(error);
+    } catch (_) {
       throw ServerException('Failed to fetch news');
     }
   }
@@ -46,8 +49,31 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
       final articles = response.data['articles'] as List;
 
       return articles.map((article) => NewsModel.fromJson(article)).toList();
-    } catch (e) {
+    } on DioException catch (error) {
+      throw _mapDioException(error);
+    } catch (_) {
       throw ServerException('Failed to search news');
     }
+  }
+
+  Exception _mapDioException(DioException error) {
+    final statusCode = error.response?.statusCode;
+    if (statusCode == 401 || statusCode == 403) {
+      return UnauthorizedException('Unauthorized news request');
+    }
+    if (statusCode == 429) {
+      return RateLimitedException('News request rate limited');
+    }
+    if (statusCode == 408 || statusCode == 504 ||
+        error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
+      return TimeoutException('News request timed out');
+    }
+    if (error.type == DioExceptionType.connectionError ||
+        error.type == DioExceptionType.unknown) {
+      return NetworkException('News service is unavailable');
+    }
+    return ServerException('News service returned an error');
   }
 }

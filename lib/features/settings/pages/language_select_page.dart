@@ -8,6 +8,7 @@ import 'package:newsapp/core/themes/app_text_styles.dart';
 import 'package:newsapp/core/widgets/primary_button.dart';
 import 'package:newsapp/dependency_injection/injection.dart';
 import 'package:newsapp/routes/route_names.dart';
+import 'package:newsapp/l10n/app_localizations.dart';
 
 class LanguageSelectPage extends StatefulWidget {
   const LanguageSelectPage({super.key});
@@ -43,6 +44,8 @@ class _LanguageSelectPageState extends State<LanguageSelectPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -73,14 +76,14 @@ class _LanguageSelectPageState extends State<LanguageSelectPage>
                 const SizedBox(height: AppSpacing.xxl),
 
                 Text(
-                  'Choose your\nlanguage',
+                  l10n.selectLanguage,
                   style: AppTextStyles.displayLarge,
                 ),
 
                 const SizedBox(height: AppSpacing.sm),
 
                 Text(
-                  'Elige tu idioma',
+                  l10n.selectLanguageNative,
                   style: AppTextStyles.bodyLarge.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -91,7 +94,7 @@ class _LanguageSelectPageState extends State<LanguageSelectPage>
                 // English
                 _LanguageTile(
                   code: 'en',
-                  label: 'English',
+                  label: l10n.english,
                   nativeLabel: 'English',
                   flag: '🇬🇧',
                   isSelected: _selectedCode == 'en',
@@ -103,7 +106,7 @@ class _LanguageSelectPageState extends State<LanguageSelectPage>
                 // Spanish
                 _LanguageTile(
                   code: 'es',
-                  label: 'Spanish',
+                  label: l10n.spanish,
                   nativeLabel: 'Español',
                   flag: '🇪🇸',
                   isSelected: _selectedCode == 'es',
@@ -113,7 +116,7 @@ class _LanguageSelectPageState extends State<LanguageSelectPage>
                 const Spacer(),
 
                 PrimaryButton(
-                  text: 'Continue / Continuar',
+                  text: l10n.continueLabel,
                   onPressed: () async {
                     await sl<LocalizationService>()
                         .setLocale(Locale(_selectedCode));

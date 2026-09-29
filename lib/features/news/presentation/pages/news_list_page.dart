@@ -89,6 +89,8 @@ class _NewsListPageState extends State<NewsListPage> {
   }
 
   void _closeSearch() {
+    _debounce?.cancel();
+
     setState(() {
       _isSearching = false;
       _searchController.clear();
@@ -434,7 +436,7 @@ class _NewsAppBar extends StatelessWidget {
                           width: AppSpacing.xs,
                         ),
                         Text(
-                          'Offline',
+                          l10n.offline,
                           style:
                               AppTextStyles.caption
                                   .copyWith(

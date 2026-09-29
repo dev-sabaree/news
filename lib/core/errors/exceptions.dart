@@ -27,3 +27,9 @@ class UnknownException implements Exception {
 
   UnknownException(this.message);
 }
+
+class RateLimitedException implements Exception {
+  final String message;
+
+  RateLimitedException(this.message);
+}

@@ -373,11 +373,6 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         return;
       }
 
-      // Roll back page number if loading failed.
-      if (currentPage > 1) {
-        currentPage--;
-      }
-
       // Keep existing articles visible.
       emit(
         NewsLoaded(

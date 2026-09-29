@@ -92,8 +92,12 @@ GoRouter _createAppRouter() {
       ),
       GoRoute(
         path: RouteNames.newsDetail,
-        builder: (context, state) =>
-            NewsDetailPage(article: state.extra as NewsEntity),
+        redirect: (context, state) => state.extra is NewsEntity
+            ? null
+            : RouteNames.news,
+        builder: (context, state) => NewsDetailPage(
+          article: state.extra! as NewsEntity,
+        ),
       ),
       GoRoute(
         path: RouteNames.languageSelect,

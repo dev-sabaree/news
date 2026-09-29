@@ -9,6 +9,7 @@ import 'connectivity_state.dart';
 class ConnectivityCubit extends Cubit<ConnectivityState> {
   final ConnectivityService connectivityService;
   StreamSubscription? _subscription;
+  int _connectionGeneration = 0;
 
   ConnectivityCubit({
     required this.connectivityService,
@@ -18,7 +19,12 @@ class ConnectivityCubit extends Cubit<ConnectivityState> {
   }
 
   Future<void> _checkInitialConnection() async {
+    final generation = ++_connectionGeneration;
     final isConnected = await connectivityService.isConnected();
+
+    if (isClosed || generation != _connectionGeneration) {
+      return;
+    }
 
     if (isConnected) {
       emit(ConnectivityOnline());
@@ -31,12 +37,18 @@ class ConnectivityCubit extends Cubit<ConnectivityState> {
     _subscription = connectivityService.onConnectivityChanged.listen((
       result,
     ) async {
+      final generation = ++_connectionGeneration;
+
       if (result.contains(ConnectivityResult.none)) {
         emit(ConnectivityOffline());
         return;
       }
 
       final hasInternet = await connectivityService.hasInternetAccess();
+
+      if (isClosed || generation != _connectionGeneration) {
+        return;
+      }
 
       if (hasInternet) {
         emit(ConnectivityOnline());

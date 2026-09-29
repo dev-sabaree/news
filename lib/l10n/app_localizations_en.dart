@@ -63,6 +63,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearSearch => 'Clear Search';
 
   @override
+  String get offline => 'Offline';
+
+  @override
+  String minutesRead(int minutes) {
+    return '$minutes min read';
+  }
+
+  @override
   String get login => 'Login';
 
   @override
@@ -129,6 +137,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectLanguage => 'Select Language';
 
   @override
+  String get selectLanguageNative => 'Choose your language';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
   String get signupSuccess => 'Account created successfully!';
 
   @override
@@ -159,6 +173,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorEmailExists => 'An account with this email already exists.';
+
+  @override
+  String get errorAuthRequest =>
+      'We couldn\'t complete that request. Please check your details and try again.';
 
   @override
   String get errorUnknown => 'Something went wrong. Please try again.';

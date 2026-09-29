@@ -46,9 +46,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       await logoutUseCase();
-    } catch (_) {}
-
-    emit(AuthUnauthenticated());
+      emit(AuthUnauthenticated());
+    } catch (_) {
+      // Only change the UI when Supabase confirms that no session remains.
+      if (supabaseClient.auth.currentSession == null) {
+        emit(AuthUnauthenticated());
+      }
+    }
   }
 
   Future<void> _onCheckSessionRequested(

@@ -19,6 +19,9 @@
   "noContent": "No hay contenido disponible",
   "tryDifferentKeywords": "Intenta buscar con otras palabras clave",
   "clearSearch": "Borrar busqueda",
+  "offline": "Sin conexion",
+  "minutesRead": "{minutes} min de lectura",
+  "@minutesRead": {"placeholders": {"minutes": {"type": "int"}}},
 
   "login": "Iniciar sesion",
   "loginSubtitle": "Bienvenido de nuevo. Inicia sesion para continuar",
@@ -43,6 +46,8 @@
   "english": "Ingles",
   "spanish": "Espanol",
   "selectLanguage": "Seleccionar idioma",
+  "selectLanguageNative": "Elige tu idioma",
+  "continueLabel": "Continuar",
 
   "signupSuccess": "Cuenta creada exitosamente!",
   "errorInvalidCredentials": "Correo o contrasena incorrectos. Intentalo de nuevo.",
@@ -53,5 +58,6 @@
   "errorInvalidEmail": "Por favor ingresa un correo electronico valido.",
   "errorWeakPassword": "La contrasena es debil. Usa al menos 6 caracteres.",
   "errorEmailExists": "Ya existe una cuenta con este correo electronico.",
+  "errorAuthRequest": "No pudimos completar la solicitud. Revisa tus datos e intentalo de nuevo.",
   "errorUnknown": "Algo salio mal. Por favor intentalo de nuevo."
 }

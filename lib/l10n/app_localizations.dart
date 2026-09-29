@@ -206,6 +206,18 @@ abstract class AppLocalizations {
   /// **'Clear Search'**
   String get clearSearch;
 
+  /// No description provided for @offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offline;
+
+  /// No description provided for @minutesRead.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min read'**
+  String minutesRead(int minutes);
+
   /// No description provided for @login.
   ///
   /// In en, this message translates to:
@@ -338,6 +350,18 @@ abstract class AppLocalizations {
   /// **'Select Language'**
   String get selectLanguage;
 
+  /// No description provided for @selectLanguageNative.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your language'**
+  String get selectLanguageNative;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
   /// No description provided for @signupSuccess.
   ///
   /// In en, this message translates to:
@@ -391,6 +415,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An account with this email already exists.'**
   String get errorEmailExists;
+
+  /// No description provided for @errorAuthRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t complete that request. Please check your details and try again.'**
+  String get errorAuthRequest;
 
   /// No description provided for @errorUnknown.
   ///

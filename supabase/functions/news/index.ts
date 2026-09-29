@@ -10,6 +10,7 @@ const corsHeaders = {
 };
 
 const newsApiBaseUrl = 'https://newsapi.org/v2';
+const upstreamTimeoutMs = 10_000;
 
 // ---------------------------
 // Redis / Rate limiter
@@ -66,93 +67,6 @@ export default {
             message: 'Unauthorized',
           },
           401,
-        );
-      }
-
-      // ---------------------------
-      // Rate limiting
-      // ---------------------------
-
-      if (!ratelimit) {
-        console.error('Rate limiter is not configured');
-
-        return json(
-          {
-            status: 'error',
-            message: 'Service temporarily unavailable',
-          },
-          503,
-        );
-      }
-
-      const userId = ctx.userClaims.id;
-
-      try {
-     const rateLimitResult = await ratelimit.limit(
-  `user:${userId}`,
-);
-
-if (rateLimitResult.reason === 'timeout') {
-  console.error('Rate limiter Redis timeout');
-
-  return json(
-    {
-      status: 'error',
-      message: 'Service temporarily unavailable',
-    },
-    503,
-  );
-}
-
-if (!rateLimitResult.success) {
-          const retryAfter = Math.max(
-            1,
-            Math.ceil(
-              (rateLimitResult.reset - Date.now()) / 1000,
-            ),
-          );
-
-          return json(
-            {
-              status: 'error',
-              message: 'Too many requests',
-            },
-            429,
-            {
-              'Retry-After': retryAfter.toString(),
-              'X-RateLimit-Limit':
-                rateLimitResult.limit.toString(),
-              'X-RateLimit-Remaining': '0',
-            },
-          );
-        }
-      } catch (error) {
-        console.error('Rate limiter error:', error);
-
-        return json(
-          {
-            status: 'error',
-            message: 'Service temporarily unavailable',
-          },
-          503,
-        );
-      }
-
-      // ---------------------------
-      // NewsAPI secret
-      // ---------------------------
-
-      const apiKey = Deno.env.get('NEWS_API_KEY');
-
-      if (!apiKey) {
-        console.error('NEWS_API_KEY is not configured');
-
-        return json(
-          {
-            status: 'error',
-            message: 'News service is not configured',
-          },
-          500,
         );
       }
 
@@ -309,30 +223,78 @@ if (!rateLimitResult.success) {
         params.set('q', normalizedQuery);
       }
 
+      // Validation runs after authentication and before rate limiting so malformed
+      // requests do not consume quota. Valid requests remain subject to the same
+      // authenticated per-user limit.
+      if (!ratelimit) {
+        console.error('Rate limiter is not configured');
+        return json({ status: 'error', message: 'Service temporarily unavailable' }, 503);
+      }
+
+      try {
+        const rateLimitResult = await ratelimit.limit(`user:${ctx.userClaims.id}`);
+        if (rateLimitResult.reason === 'timeout') {
+          console.error('Rate limiter Redis timeout');
+          return json({ status: 'error', message: 'Service temporarily unavailable' }, 503);
+        }
+        if (!rateLimitResult.success) {
+          const retryAfter = Math.max(1, Math.ceil((rateLimitResult.reset - Date.now()) / 1000));
+          return json(
+            { status: 'error', message: 'Too many requests' },
+            429,
+            {
+              'Retry-After': retryAfter.toString(),
+              'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+              'X-RateLimit-Remaining': '0',
+            },
+          );
+        }
+      } catch (error) {
+        console.error('Rate limiter error:', error);
+        return json({ status: 'error', message: 'Service temporarily unavailable' }, 503);
+      }
+
+      const apiKey = Deno.env.get('NEWS_API_KEY');
+      if (!apiKey) {
+        console.error('NEWS_API_KEY is not configured');
+        return json({ status: 'error', message: 'News service is not configured' }, 500);
+      }
+
       // ---------------------------
       // NewsAPI request
       // ---------------------------
 
-      const response = await fetch(
-        `${newsApiBaseUrl}${endpoint}?${params.toString()}`,
-        {
-          headers: {
-            'X-Api-Key': apiKey,
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), upstreamTimeoutMs);
+
+      try {
+        const response = await fetch(
+          `${newsApiBaseUrl}${endpoint}?${params.toString()}`,
+          {
+            headers: {
+              'X-Api-Key': apiKey,
+            },
+            signal: controller.signal,
           },
-        },
-      );
+        );
 
-      const body = await response.text();
-
-      return new Response(body, {
-        status: response.status,
-        headers: {
-          ...corsHeaders,
-          'Content-Type':
-            response.headers.get('content-type') ??
-            'application/json',
-        },
-      });
+        const body = await response.text();
+        return new Response(body, {
+          status: response.status,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': response.headers.get('content-type') ?? 'application/json',
+          },
+        });
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return json({ status: 'error', message: 'News service timed out' }, 504);
+        }
+        console.error('NewsAPI request failed:', error);
+        return json({ status: 'error', message: 'News service unavailable' }, 502);
+      } finally {
+        clearTimeout(timeoutId);
+      }
     },
   ),
 };

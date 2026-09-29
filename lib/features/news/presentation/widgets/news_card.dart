@@ -6,6 +6,7 @@ import 'package:newsapp/core/themes/app_spacing.dart';
 import 'package:newsapp/core/themes/app_radius.dart';
 import 'package:newsapp/core/widgets/shimmer_widget.dart';
 import 'package:newsapp/features/news/domain/entities/news_entity.dart';
+import 'package:newsapp/l10n/app_localizations.dart';
 
 class NewsCard extends StatelessWidget {
   final NewsEntity article;
@@ -13,27 +14,24 @@ class NewsCard extends StatelessWidget {
 
   const NewsCard({super.key, required this.article, required this.onTap});
 
-  String _formatDate(String raw) {
+  String _formatDate(BuildContext context, String raw) {
     try {
       final dt = DateTime.parse(raw).toLocal();
-      final months = [
-        'Jan','Feb','Mar','Apr','May','Jun',
-        'Jul','Aug','Sep','Oct','Nov','Dec'
-      ];
-      return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
+      return MaterialLocalizations.of(context).formatMediumDate(dt);
     } catch (_) {
       return raw;
     }
   }
 
-  String _readTime(String content) {
+  String _readTime(AppLocalizations l10n, String content) {
     final words = content.trim().split(RegExp(r'\s+')).length;
     final minutes = (words / 200).ceil();
-    return '$minutes min read';
+    return l10n.minutesRead(minutes);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -131,7 +129,7 @@ class NewsCard extends StatelessWidget {
                       ),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
-                        _readTime(article.content.isNotEmpty
+                        _readTime(l10n, article.content.isNotEmpty
                             ? article.content
                             : article.title),
                         style: AppTextStyles.caption,
@@ -189,7 +187,7 @@ class NewsCard extends StatelessWidget {
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          _formatDate(article.publishedAt),
+                          _formatDate(context, article.publishedAt),
                           style: AppTextStyles.caption,
                         ),
                       ],

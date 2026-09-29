@@ -6,6 +6,7 @@ import 'package:newsapp/core/services/local_storage_service.dart';
 import 'package:newsapp/features/news/data/models/news_model.dart';
 
 class NewsRepositoryImpl implements NewsRepository {
+  static const _cacheTtl = Duration(hours: 6);
   final NewsRemoteDataSource remoteDataSource;
   final LocalStorageService localStorageService;
 
@@ -23,22 +24,17 @@ class NewsRepositoryImpl implements NewsRepository {
       }
 
       return articles.map((e) => e.toEntity()).toList();
-    } catch (e) {
-      try {
-        final cachedNews = localStorageService.getNews();
-
-        if (cachedNews.isNotEmpty) {
-          final mapped = cachedNews
-              .map((e) => NewsModel.fromJson(jsonDecode(e)).toEntity())
-              .toList();
-
-          return mapped;
-        }
-
-        rethrow;
-      } catch (cacheError) {
+    } catch (_) {
+      if (page != 1) {
         rethrow;
       }
+
+      final cachedNews = await getCachedNews();
+      if (cachedNews.isNotEmpty) {
+        return cachedNews;
+      }
+
+      rethrow;
     }
   }
 
@@ -59,10 +55,28 @@ class NewsRepositoryImpl implements NewsRepository {
   Future<List<NewsEntity>> getCachedNews() async {
     final cachedNews = localStorageService.getNews();
 
-    if (cachedNews.isEmpty) return [];
+    final cachedAt = localStorageService.getNewsCacheTimestamp();
+    final now = DateTime.now();
+    if (cachedNews.isEmpty ||
+        cachedAt == null ||
+        cachedAt.isAfter(now) ||
+        now.difference(cachedAt) > _cacheTtl) {
+      return [];
+    }
 
-    return cachedNews
-        .map((e) => NewsModel.fromJson(jsonDecode(e)).toEntity())
-        .toList();
+    final articles = <NewsEntity>[];
+    for (final cachedArticle in cachedNews) {
+      try {
+        final decoded = jsonDecode(cachedArticle);
+        if (decoded is! Map<String, dynamic>) {
+          continue;
+        }
+        articles.add(NewsModel.fromJson(decoded).toEntity());
+      } catch (_) {
+        // A corrupt entry should not prevent valid cached articles from loading.
+      }
+    }
+
+    return articles;
   }
 }

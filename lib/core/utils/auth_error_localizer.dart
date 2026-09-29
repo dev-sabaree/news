@@ -8,7 +8,7 @@ class AuthErrorLocalizer {
       case 'email_not_confirmed':
         return l10n.errorEmailNotConfirmed;
       case 'user_not_found':
-        return l10n.errorUserNotFound;
+        return l10n.errorAuthRequest;
       case 'too_many_requests':
         return l10n.errorTooManyRequests;
       case 'network_error':
@@ -18,7 +18,7 @@ class AuthErrorLocalizer {
       case 'weak_password':
         return l10n.errorWeakPassword;
       case 'email_exists':
-        return l10n.errorEmailExists;
+        return l10n.errorAuthRequest;
       case 'signup_success':
         return l10n.signupSuccess;
       default:

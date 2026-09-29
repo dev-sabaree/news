@@ -19,6 +19,9 @@
   "noContent": "No content available",
   "tryDifferentKeywords": "Try searching with different keywords",
   "clearSearch": "Clear Search",
+  "offline": "Offline",
+  "minutesRead": "{minutes} min read",
+  "@minutesRead": {"placeholders": {"minutes": {"type": "int"}}},
 
   "login": "Login",
   "loginSubtitle": "Welcome back! Sign in to continue",
@@ -43,6 +46,8 @@
   "english": "English",
   "spanish": "Spanish",
   "selectLanguage": "Select Language",
+  "selectLanguageNative": "Choose your language",
+  "continueLabel": "Continue",
 
   "signupSuccess": "Account created successfully!",
   "errorInvalidCredentials": "Invalid email or password. Please try again.",
@@ -53,5 +58,6 @@
   "errorInvalidEmail": "Please enter a valid email address.",
   "errorWeakPassword": "Password is too weak. Use at least 6 characters.",
   "errorEmailExists": "An account with this email already exists.",
+  "errorAuthRequest": "We couldn't complete that request. Please check your details and try again.",
   "errorUnknown": "Something went wrong. Please try again."
 }

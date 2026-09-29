@@ -1,6 +1,6 @@
-# 📰 News App
+# 📰 Newsilo
 
-A modern Flutter news application built with **Clean Architecture**, **BLoC state management**, **Supabase Authentication**, and **NewsAPI**.
+A Flutter news application built with **Clean Architecture**, **BLoC state management**, **Supabase Authentication**, and **NewsAPI**.
 
 The application provides authenticated access to real-time news, intelligent search, pagination, offline handling, local caching, multilingual support, and a clean responsive interface.
 
@@ -55,7 +55,8 @@ Download the latest Android APK from the **GitHub Releases** page:
 ### 💾 Offline & Caching
 
 * Local news caching using SharedPreferences
-* Cached news fallback when the API is unavailable
+* Six-hour cached headline fallback for temporary API failures
+* Corrupt cached entries are skipped safely
 * Internet connectivity detection
 * Offline banner
 * Error and retry states
@@ -421,9 +422,10 @@ When you push a version tag such as `v1.0.0`, GitHub Actions will:
 3. Install dependencies.
 4. Generate JSON serialization code.
 5. Run `flutter analyze`.
-6. Build the release APK.
-7. Upload the APK as a workflow artifact.
-8. Publish the APK automatically to the GitHub Release.
+6. Run `flutter test`.
+7. Build the release APK.
+8. Upload the APK as a workflow artifact.
+9. Publish the APK automatically to the GitHub Release.
 
 ### Required GitHub Secrets
 
@@ -432,13 +434,17 @@ Add these repository secrets under **Settings → Secrets and variables → Acti
 ```text
 SUPABASE_URL
 SUPABASE_ANON_KEY
+ANDROID_KEYSTORE_BASE64
+ANDROID_KEYSTORE_PASSWORD
+ANDROID_KEY_ALIAS
+ANDROID_KEY_PASSWORD
 ```
 
 Do not commit the real `.env` file.
 
 ### Create a release
 
-After adding the two GitHub secrets, create and push a version tag:
+After adding the required GitHub secrets, create and push a version tag:
 
 ```bash
 git tag v1.0.1
@@ -481,7 +487,7 @@ dart format lib test
 
 ## 🔐 Security
 
-The Flutter client loads only the Supabase URL and publishable key from `.env`. The NewsAPI secret is stored server-side in the Supabase Edge Function and is not shipped with the APK.
+The Flutter client loads only the Supabase URL and publishable key from `.env`. News requests go through an authenticated Supabase Edge Function, which validates inputs before applying its per-user Redis rate limit and keeps `NEWS_API_KEY` server-side. The function aborts a slow upstream request after 10 seconds. Authentication messages do not disclose whether an account exists.
 
 The `.gitignore` configuration already excludes:
 
