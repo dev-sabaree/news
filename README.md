@@ -405,53 +405,51 @@ adb install build/app/outputs/flutter-apk/app-release.apk
 
 ---
 
-## 🚀 Publishing the APK on GitHub
+## 🚀 Automated GitHub APK Releases
 
-For portfolio projects, the recommended approach is to use **GitHub Releases** rather than committing the APK directly into the repository.
+The repository includes a GitHub Actions workflow at `.github/workflows/android-release.yml`.
 
-### Steps
+When you push a version tag such as `v1.0.0`, GitHub Actions will:
 
-1. Build the release APK:
+1. Install the latest stable Flutter SDK.
+2. Create `.env` from GitHub Actions secrets.
+3. Install dependencies.
+4. Generate JSON serialization code.
+5. Run `flutter analyze`.
+6. Build the release APK.
+7. Upload the APK as a workflow artifact.
+8. Publish the APK automatically to the GitHub Release.
+
+### Required GitHub Secrets
+
+Add these repository secrets under **Settings → Secrets and variables → Actions**:
+
+```text
+NEWS_API_KEY
+SUPABASE_URL
+SUPABASE_ANON_KEY
+```
+
+Do not commit the real `.env` file.
+
+### Create a release
+
+After adding the three secrets, create and push a version tag:
 
 ```bash
-flutter build apk --release
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
-2. Open the GitHub repository.
-
-3. Go to:
+The workflow will create the GitHub Release and attach:
 
 ```text
-Releases → Create a new release
+news-app-release.apk
 ```
 
-4. Create a tag, for example:
+You can then use the **Download Latest APK** link at the top of this README.
 
-```text
-v1.0.0
-```
-
-5. Add a release title:
-
-```text
-News App v1.0.0
-```
-
-6. Upload:
-
-```text
-build/app/outputs/flutter-apk/app-release.apk
-```
-
-7. Publish the release.
-
-Then your README can point users to:
-
-```text
-https://github.com/dev-sabaree/news/releases/latest
-```
-
-This gives visitors a clean **Download Latest APK** experience without storing large binary files inside your source repository.
+> The first automated release should be treated as a release-candidate build: verify authentication, API access, app startup, and APK installation on a real Android device before sharing it publicly.
 
 ---
 
