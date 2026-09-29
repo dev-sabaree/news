@@ -30,6 +30,7 @@ const ratelimit = redis
   ? new Ratelimit({
       redis,
       limiter: Ratelimit.slidingWindow(10, '10 s'),
+      timeout: 1000,
       analytics: true,
     })
   : null;
@@ -87,11 +88,23 @@ export default {
       const userId = ctx.userClaims.id;
 
       try {
-        const rateLimitResult = await ratelimit.limit(
-          `user:${userId}`,
-        );
+     const rateLimitResult = await ratelimit.limit(
+  `user:${userId}`,
+);
 
-        if (!rateLimitResult.success) {
+if (rateLimitResult.reason === 'timeout') {
+  console.error('Rate limiter Redis timeout');
+
+  return json(
+    {
+      status: 'error',
+      message: 'Service temporarily unavailable',
+    },
+    503,
+  );
+}
+
+if (!rateLimitResult.success) {
           const retryAfter = Math.max(
             1,
             Math.ceil(
