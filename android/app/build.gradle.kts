@@ -1,3 +1,8 @@
+plugins {
+    id("com.android.application")
+    id("dev.flutter.flutter-gradle-plugin")
+}
+
 import java.util.Properties
 
 val keystoreProperties = Properties()
@@ -7,11 +12,6 @@ if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.inputStream().use {
         keystoreProperties.load(it)
     }
-}
-
-plugins {
-    id("com.android.application")
-    id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
