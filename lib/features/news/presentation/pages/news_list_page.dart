@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:async';
+
 import 'package:newsapp/l10n/app_localizations.dart';
 import 'package:newsapp/features/news/presentation/widgets/news_card.dart';
 import 'package:newsapp/features/news/presentation/bloc/news_bloc.dart';
@@ -32,7 +34,9 @@ class NewsListPage extends StatefulWidget {
 class _NewsListPageState extends State<NewsListPage> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
+
   Timer? _debounce;
+
   bool _isSearching = false;
 
   @override
@@ -41,7 +45,9 @@ class _NewsListPageState extends State<NewsListPage> {
 
     _scrollController.addListener(() {
       if (_scrollController.position.extentAfter < 300) {
-        context.read<NewsBloc>().add(LoadMoreNews());
+        context.read<NewsBloc>().add(
+              LoadMoreNews(),
+            );
       }
     });
   }
@@ -51,18 +57,35 @@ class _NewsListPageState extends State<NewsListPage> {
     _searchController.dispose();
     _scrollController.dispose();
     _debounce?.cancel();
+
     super.dispose();
   }
 
+  // ---------------------------------------------------------------------------
+  // Search
+  // ---------------------------------------------------------------------------
+
   void _onSearchChanged(String value) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (value.trim().isEmpty) {
-        context.read<NewsBloc>().add(FetchTopHeadlines());
-      } else {
-        context.read<NewsBloc>().add(SearchNews(value.trim()));
-      }
-    });
+    if (_debounce?.isActive ?? false) {
+      _debounce!.cancel();
+    }
+
+    _debounce = Timer(
+      const Duration(milliseconds: 500),
+      () {
+        if (value.trim().isEmpty) {
+          context.read<NewsBloc>().add(
+                FetchTopHeadlines(),
+              );
+        } else {
+          context.read<NewsBloc>().add(
+                SearchNews(
+                  value.trim(),
+                ),
+              );
+        }
+      },
+    );
   }
 
   void _closeSearch() {
@@ -70,8 +93,31 @@ class _NewsListPageState extends State<NewsListPage> {
       _isSearching = false;
       _searchController.clear();
     });
-    context.read<NewsBloc>().add(FetchTopHeadlines());
+
+    context.read<NewsBloc>().add(
+          FetchTopHeadlines(),
+        );
   }
+
+  // ---------------------------------------------------------------------------
+  // Pull-to-refresh
+  // ---------------------------------------------------------------------------
+
+  Future<void> _handleRefresh() {
+    final completer = Completer<void>();
+
+    context.read<NewsBloc>().add(
+          RefreshNews(
+            completer: completer,
+          ),
+        );
+
+    return completer.future;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Article list
+  // ---------------------------------------------------------------------------
 
   Widget _buildArticleList({
     required List articles,
@@ -79,20 +125,22 @@ class _NewsListPageState extends State<NewsListPage> {
   }) {
     return RefreshIndicator(
       color: AppColors.primary,
-      onRefresh: () async {
-        context.read<NewsBloc>().add(RefreshNews());
-      },
+      onRefresh: _handleRefresh,
       child: ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.only(
           top: AppSpacing.sm,
           bottom: AppSpacing.xxxl,
         ),
-        itemCount: hasReachedMax ? articles.length : articles.length + 1,
+        itemCount:
+            hasReachedMax ? articles.length : articles.length + 1,
         itemBuilder: (context, index) {
+          // Pagination loading indicator.
           if (index >= articles.length) {
             return const Padding(
-              padding: EdgeInsets.all(AppSpacing.xxl),
+              padding: EdgeInsets.all(
+                AppSpacing.xxl,
+              ),
               child: Center(
                 child: SizedBox(
                   width: 24,
@@ -109,7 +157,10 @@ class _NewsListPageState extends State<NewsListPage> {
           return NewsCard(
             article: articles[index],
             onTap: () {
-              context.push(RouteNames.newsDetail, extra: articles[index]);
+              context.push(
+                RouteNames.newsDetail,
+                extra: articles[index],
+              );
             },
           );
         },
@@ -119,28 +170,41 @@ class _NewsListPageState extends State<NewsListPage> {
 
   Widget _buildShimmerList() {
     return ListView.builder(
-      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      padding: const EdgeInsets.only(
+        top: AppSpacing.sm,
+      ),
       itemCount: 5,
-      itemBuilder: (context, _) => const NewsShimmerCard(),
+      itemBuilder: (context, _) {
+        return const NewsShimmerCard();
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+
     final authState = context.watch<AuthBloc>().state;
+
     final userEmail =
-        authState is AuthAuthenticated ? authState.user.email : null;
+        authState is AuthAuthenticated
+            ? authState.user.email
+            : null;
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
-          context.go(RouteNames.login);
+          context.go(
+            RouteNames.login,
+          );
         }
       },
       child: PopScope(
-        canPop: !_isSearching, //
-        onPopInvokedWithResult: (didPop, result) {
+        canPop: !_isSearching,
+        onPopInvokedWithResult: (
+          didPop,
+          result,
+        ) {
           if (!didPop && _isSearching) {
             _closeSearch();
           }
@@ -150,7 +214,10 @@ class _NewsListPageState extends State<NewsListPage> {
           body: SafeArea(
             child: Column(
               children: [
+                // ----------------------------------------------------------------
                 // AppBar
+                // ----------------------------------------------------------------
+
                 _NewsAppBar(
                   searchController: _searchController,
                   isSearching: _isSearching,
@@ -158,7 +225,9 @@ class _NewsListPageState extends State<NewsListPage> {
                     if (_isSearching) {
                       _closeSearch();
                     } else {
-                      setState(() => _isSearching = true);
+                      setState(() {
+                        _isSearching = true;
+                      });
                     }
                   },
                   onSearchChanged: _onSearchChanged,
@@ -166,7 +235,10 @@ class _NewsListPageState extends State<NewsListPage> {
                   userEmail: userEmail,
                 ),
 
+                // ----------------------------------------------------------------
                 // Body
+                // ----------------------------------------------------------------
+
                 Expanded(
                   child: BlocBuilder<NewsBloc, NewsState>(
                     builder: (context, state) {
@@ -187,7 +259,8 @@ class _NewsListPageState extends State<NewsListPage> {
 
                         return _buildArticleList(
                           articles: state.articles,
-                          hasReachedMax: state.hasReachedMax,
+                          hasReachedMax:
+                              state.hasReachedMax,
                         );
                       }
 
@@ -195,17 +268,25 @@ class _NewsListPageState extends State<NewsListPage> {
                         if (state.cachedArticles != null &&
                             state.cachedArticles!.isNotEmpty) {
                           return _buildArticleList(
-                            articles: state.cachedArticles!,
+                            articles:
+                                state.cachedArticles!,
                             hasReachedMax: true,
                           );
                         }
 
                         return ErrorStateWidget(
-                          title: l10n.noInternetConnection,
-                          subtitle: l10n.failedToLoad,
-                          retryText: l10n.refresh,
+                          title:
+                              l10n.noInternetConnection,
+                          subtitle:
+                              l10n.failedToLoad,
+                          retryText:
+                              l10n.refresh,
                           onRetry: () {
-                            context.read<NewsBloc>().add(FetchTopHeadlines());
+                            context
+                                .read<NewsBloc>()
+                                .add(
+                                  FetchTopHeadlines(),
+                                );
                           },
                         );
                       }
@@ -223,7 +304,9 @@ class _NewsListPageState extends State<NewsListPage> {
   }
 }
 
-// ── AppBar Widget ──────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// AppBar
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _NewsAppBar extends StatelessWidget {
   final TextEditingController searchController;
@@ -252,7 +335,10 @@ class _NewsAppBar extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // --------------------------------------------------------------------
           // Title row
+          // --------------------------------------------------------------------
+
           Row(
             children: [
               Container(
@@ -260,7 +346,8 @@ class _NewsAppBar extends StatelessWidget {
                 height: 36,
                 decoration: BoxDecoration(
                   color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius:
+                      BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   Icons.newspaper_rounded,
@@ -268,53 +355,93 @@ class _NewsAppBar extends StatelessWidget {
                   size: 20,
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+
+              const SizedBox(
+                width: AppSpacing.md,
+              ),
+
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
-                    Text(l10n.appTitle, style: AppTextStyles.headlineMedium),
-                    if (userEmail != null && userEmail!.isNotEmpty)
+                    Text(
+                      l10n.appTitle,
+                      style:
+                          AppTextStyles.headlineMedium,
+                    ),
+
+                    if (userEmail != null &&
+                        userEmail!.isNotEmpty)
                       Text(
                         '${l10n.signedInAs} $userEmail',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
+                        style:
+                            AppTextStyles.caption.copyWith(
+                          color:
+                              AppColors.textSecondary,
                         ),
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        overflow:
+                            TextOverflow.ellipsis,
                       ),
                   ],
                 ),
               ),
-              BlocBuilder<ConnectivityCubit, ConnectivityState>(
-                builder: (context, connectivityState) {
-                  if (connectivityState is! ConnectivityOffline) {
+
+              // ----------------------------------------------------------------
+              // Offline indicator
+              // ----------------------------------------------------------------
+
+              BlocBuilder<
+                  ConnectivityCubit,
+                  ConnectivityState>(
+                builder: (
+                  context,
+                  connectivityState,
+                ) {
+                  if (connectivityState
+                      is! ConnectivityOffline) {
                     return const SizedBox.shrink();
                   }
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xs,
+                    padding:
+                        const EdgeInsets.symmetric(
+                      horizontal:
+                          AppSpacing.sm,
+                      vertical:
+                          AppSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.offline.withValues(alpha: 0.10),
-                      borderRadius: AppRadius.fullAll,
+                      color: AppColors.offline
+                          .withValues(
+                        alpha: 0.10,
+                      ),
+                      borderRadius:
+                          AppRadius.fullAll,
                     ),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize:
+                          MainAxisSize.min,
                       children: [
                         const Icon(
                           Icons.wifi_off_rounded,
                           size: 14,
-                          color: AppColors.offline,
+                          color:
+                              AppColors.offline,
                         ),
-                        const SizedBox(width: AppSpacing.xs),
+                        const SizedBox(
+                          width: AppSpacing.xs,
+                        ),
                         Text(
                           'Offline',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.offline,
-                            fontWeight: FontWeight.w600,
+                          style:
+                              AppTextStyles.caption
+                                  .copyWith(
+                            color:
+                                AppColors.offline,
+                            fontWeight:
+                                FontWeight.w600,
                           ),
                         ),
                       ],
@@ -322,72 +449,133 @@ class _NewsAppBar extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(width: AppSpacing.xs),
+
+              const SizedBox(
+                width: AppSpacing.xs,
+              ),
+
+              // ----------------------------------------------------------------
+              // Language
+              // ----------------------------------------------------------------
+
               const LanguageSwitcher(),
+
+              // ----------------------------------------------------------------
+              // Search
+              // ----------------------------------------------------------------
+
               IconButton(
                 icon: Icon(
                   isSearching
                       ? Icons.close_rounded
                       : Icons.search_rounded,
-                  color: AppColors.textPrimary,
+                  color:
+                      AppColors.textPrimary,
                 ),
-                onPressed: onSearchToggle,
+                onPressed:
+                    onSearchToggle,
               ),
+
+              // ----------------------------------------------------------------
+              // Logout
+              // ----------------------------------------------------------------
+
               Builder(
-                builder: (ctx) => IconButton(
-                  icon: const Icon(
-                    Icons.logout_rounded,
-                    color: AppColors.textPrimary,
-                  ),
-                  onPressed: () {
-                    ctx.read<AuthBloc>().add(LogoutRequested());
-                  },
-                ),
+                builder: (ctx) {
+                  return IconButton(
+                    icon: const Icon(
+                      Icons.logout_rounded,
+                      color:
+                          AppColors.textPrimary,
+                    ),
+                    onPressed: () {
+                      ctx
+                          .read<AuthBloc>()
+                          .add(
+                            LogoutRequested(),
+                          );
+                    },
+                  );
+                },
               ),
             ],
           ),
 
-          // Search bar — animated
+          // --------------------------------------------------------------------
+          // Search bar
+          // --------------------------------------------------------------------
+
           AnimatedCrossFade(
-            duration: const Duration(milliseconds: 250),
+            duration:
+                const Duration(milliseconds: 250),
             crossFadeState: isSearching
                 ? CrossFadeState.showSecond
                 : CrossFadeState.showFirst,
-            firstChild: const SizedBox.shrink(),
+            firstChild:
+                const SizedBox.shrink(),
             secondChild: Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.md),
+              padding:
+                  const EdgeInsets.only(
+                top: AppSpacing.md,
+              ),
               child: TextField(
-                controller: searchController,
-                onChanged: onSearchChanged,
+                controller:
+                    searchController,
+                onChanged:
+                    onSearchChanged,
                 autofocus: true,
-                style: AppTextStyles.bodyLarge,
-                decoration: InputDecoration(
-                  hintText: l10n.search,
-                  hintStyle: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.textHint),
-                  prefixIcon: const Icon(
+                style:
+                    AppTextStyles.bodyLarge,
+                decoration:
+                    InputDecoration(
+                  hintText:
+                      l10n.search,
+                  hintStyle:
+                      AppTextStyles.bodyMedium
+                          .copyWith(
+                    color:
+                        AppColors.textHint,
+                  ),
+                  prefixIcon:
+                      const Icon(
                     Icons.search_rounded,
-                    color: AppColors.textHint,
+                    color:
+                        AppColors.textHint,
                     size: 20,
                   ),
                   filled: true,
-                  fillColor: AppColors.background,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.md,
+                  fillColor:
+                      AppColors.background,
+                  contentPadding:
+                      const EdgeInsets
+                          .symmetric(
+                    horizontal:
+                        AppSpacing.lg,
+                    vertical:
+                        AppSpacing.md,
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: AppRadius.fullAll,
-                    borderSide: BorderSide.none,
+                  border:
+                      OutlineInputBorder(
+                    borderRadius:
+                        AppRadius.fullAll,
+                    borderSide:
+                        BorderSide.none,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: AppRadius.fullAll,
-                    borderSide: BorderSide.none,
+                  enabledBorder:
+                      OutlineInputBorder(
+                    borderRadius:
+                        AppRadius.fullAll,
+                    borderSide:
+                        BorderSide.none,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: AppRadius.fullAll,
-                    borderSide: const BorderSide(
-                      color: AppColors.primary,
+                  focusedBorder:
+                      OutlineInputBorder(
+                    borderRadius:
+                        AppRadius.fullAll,
+                    borderSide:
+                        const BorderSide(
+                      color:
+                          AppColors.primary,
                       width: 1.5,
                     ),
                   ),
