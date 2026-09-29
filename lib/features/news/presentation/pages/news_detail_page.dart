@@ -40,8 +40,26 @@ class NewsDetailPage extends StatelessWidget {
     }
 
     try {
-      final uri = Uri.parse(article.articleUrl);
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final uri = Uri.tryParse(article.articleUrl);
+
+      if (uri == null ||
+          (uri.scheme != 'http' && uri.scheme != 'https') ||
+          uri.host.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(fallbackText),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        return;
+      }
+
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -213,7 +231,6 @@ class NewsDetailPage extends StatelessWidget {
 
                       const SizedBox(height: AppSpacing.xxxl),
 
-                
                       _ReadMoreButton(
                         label: l10n.readMore,
                         onTap: () =>
