@@ -27,14 +27,12 @@ jobs:
       - name: Create environment file
         shell: bash
         env:
-          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          test -n "$NEWS_API_KEY" || (echo "Missing NEWS_API_KEY secret" && exit 1)
           test -n "$SUPABASE_URL" || (echo "Missing SUPABASE_URL secret" && exit 1)
           test -n "$SUPABASE_ANON_KEY" || (echo "Missing SUPABASE_ANON_KEY secret" && exit 1)
-          printf 'NEWS_API_KEY=%s\nSUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\n'             "$NEWS_API_KEY" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+          printf 'SUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\n'             "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
 
       - name: Install dependencies
         run: flutter pub get
