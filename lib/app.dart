@@ -7,7 +7,6 @@ import 'core/connectivity/connectivity_cubit.dart';
 import 'core/connectivity/connectivity_state.dart';
 import 'core/themes/app_theme.dart';
 import 'core/localization/localization_service.dart';
-import 'core/widgets/offline_banner.dart';
 import 'routes/app_router.dart';
 import 'dependency_injection/injection.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -32,22 +31,7 @@ class App extends StatelessWidget {
             routerConfig: appRouter,
             locale: sl<LocalizationService>().currentLocale,
             builder: (context, child) {
-              return Column(
-                children: [
-                  BlocBuilder<ConnectivityCubit, ConnectivityState>(
-                    builder: (context, connectivityState) {
-                      if (connectivityState is ConnectivityOffline) {
-                        return OfflineBanner(
-                          message: AppLocalizations.of(context)
-                              .noInternetConnection,
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  Expanded(child: child ?? const SizedBox.shrink()),
-                ],
-              );
+              return child ?? const SizedBox.shrink();
             },
             supportedLocales: LocalizationService.supportedLocales,
             localizationsDelegates: const [
