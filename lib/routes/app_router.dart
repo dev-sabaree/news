@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:newsapp/dependency_injection/injection.dart';
 import 'package:newsapp/features/auth/presentation/pages/login_page.dart';
 import 'package:newsapp/features/auth/presentation/pages/signup_page.dart';
@@ -14,6 +15,30 @@ import 'package:newsapp/routes/route_names.dart';
 
 final appRouter = GoRouter(
   initialLocation: RouteNames.splash,
+  refreshListenable: GoRouterRefreshStream(
+    Supabase.instance.client.auth.onAuthStateChange,
+  ),
+  redirect: (context, state) {
+    final session = Supabase.instance.client.auth.currentSession;
+    final isLoggedIn = session != null;
+    final location = state.matchedLocation;
+
+    const protectedRoutes = {
+      RouteNames.news,
+      RouteNames.newsDetail,
+    };
+
+    if (protectedRoutes.contains(location) && !isLoggedIn) {
+      return RouteNames.login;
+    }
+
+    if (isLoggedIn &&
+        (location == RouteNames.login || location == RouteNames.signup)) {
+      return RouteNames.news;
+    }
+
+    return null;
+  },
   routes: [
     GoRoute(
       path: RouteNames.splash,
