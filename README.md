@@ -438,11 +438,11 @@ Do not commit the real `.env` file.
 
 ### Create a release
 
-After adding the three secrets, create and push a version tag:
+After adding the two GitHub secrets, create and push a version tag:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.1
+git push origin v1.0.1
 ```
 
 The workflow will create the GitHub Release and attach:
