@@ -15,9 +15,6 @@ import 'package:newsapp/routes/route_names.dart';
 
 final appRouter = GoRouter(
   initialLocation: RouteNames.splash,
-  refreshListenable: GoRouterRefreshStream(
-    Supabase.instance.client.auth.onAuthStateChange,
-  ),
   redirect: (context, state) {
     final session = Supabase.instance.client.auth.currentSession;
     final isLoggedIn = session != null;
