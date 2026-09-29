@@ -6,7 +6,7 @@ class AuthErrorMapper {
   const AuthErrorMapper._();
 
   static String getErrorCode(Object error) {
-    if (error is SocketException) {
+    if (error is AuthRetryableFetchException || error is SocketException) {
       return 'network_error';
     }
 
