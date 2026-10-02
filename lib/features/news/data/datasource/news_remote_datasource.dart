@@ -25,9 +25,7 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
         queryParameters: {'country': 'us', 'page': page, 'pageSize': 20},
       );
 
-      final articles = response.data['articles'] as List;
-
-      return articles.map((article) => NewsModel.fromJson(article)).toList();
+      return _parseArticles(response.data);
     } on DioException catch (error) {
       throw _mapDioException(error);
     } catch (_) {
@@ -46,9 +44,7 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
         queryParameters: {'q': query, 'page': page, 'pageSize': 20},
       );
 
-      final articles = response.data['articles'] as List;
-
-      return articles.map((article) => NewsModel.fromJson(article)).toList();
+      return _parseArticles(response.data);
     } on DioException catch (error) {
       throw _mapDioException(error);
     } catch (_) {
@@ -75,5 +71,32 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
       return NetworkException('News service is unavailable');
     }
     return ServerException('News service returned an error');
+  }
+
+  List<NewsModel> _parseArticles(Object? data) {
+    if (data is! Map) {
+      throw ServerException('News service returned an invalid response');
+    }
+
+    final rawArticles = data['articles'];
+    if (rawArticles is! List) {
+      throw ServerException('News service returned an invalid response');
+    }
+
+    final articles = <NewsModel>[];
+    for (final article in rawArticles) {
+      if (article is! Map) {
+        throw ServerException('News service returned an invalid article');
+      }
+
+      try {
+        articles.add(NewsModel.fromJson(Map<String, dynamic>.from(article)));
+      } on TypeError {
+        throw ServerException('News service returned an invalid article');
+      } on FormatException {
+        throw ServerException('News service returned an invalid article');
+      }
+    }
+    return articles;
   }
 }

@@ -9,6 +9,7 @@ import 'package:newsapp/features/news/presentation/widgets/news_card.dart';
 import 'package:newsapp/features/news/presentation/bloc/news_bloc.dart';
 import 'package:newsapp/features/news/presentation/bloc/news_event.dart';
 import 'package:newsapp/features/news/presentation/bloc/news_state.dart';
+import 'package:newsapp/features/news/domain/entities/news_entity.dart';
 import 'package:newsapp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:newsapp/features/auth/presentation/bloc/auth_event.dart';
 import 'package:newsapp/features/auth/presentation/bloc/auth_state.dart';
@@ -122,8 +123,10 @@ class _NewsListPageState extends State<NewsListPage> {
   // ---------------------------------------------------------------------------
 
   Widget _buildArticleList({
-    required List articles,
+    required List<NewsEntity> articles,
     bool hasReachedMax = true,
+    bool isLoadingMore = false,
+    bool paginationFailed = false,
   }) {
     return RefreshIndicator(
       color: AppColors.primary,
@@ -137,8 +140,16 @@ class _NewsListPageState extends State<NewsListPage> {
         itemCount:
             hasReachedMax ? articles.length : articles.length + 1,
         itemBuilder: (context, index) {
-          // Pagination loading indicator.
           if (index >= articles.length) {
+            if (paginationFailed) {
+              return Center(
+                child: TextButton(
+                  onPressed: () => context.read<NewsBloc>().add(LoadMoreNews()),
+                  child: Text(AppLocalizations.of(context).refresh),
+                ),
+              );
+            }
+            if (!isLoadingMore) return const SizedBox.shrink();
             return const Padding(
               padding: EdgeInsets.all(
                 AppSpacing.xxl,
@@ -193,15 +204,7 @@ class _NewsListPageState extends State<NewsListPage> {
             ? authState.user.email
             : null;
 
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthUnauthenticated) {
-          context.go(
-            RouteNames.login,
-          );
-        }
-      },
-      child: PopScope(
+    return PopScope(
         canPop: !_isSearching,
         onPopInvokedWithResult: (
           didPop,
@@ -263,6 +266,8 @@ class _NewsListPageState extends State<NewsListPage> {
                           articles: state.articles,
                           hasReachedMax:
                               state.hasReachedMax,
+                          isLoadingMore: state.isLoadingMore,
+                          paginationFailed: state.paginationFailed,
                         );
                       }
 
@@ -301,7 +306,6 @@ class _NewsListPageState extends State<NewsListPage> {
             ),
           ),
         ),
-      ),
     );
   }
 }

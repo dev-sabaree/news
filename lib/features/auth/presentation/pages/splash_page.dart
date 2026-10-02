@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -23,8 +21,6 @@ class _SplashPageState extends State<SplashPage>
   late final AnimationController _animationController;
   late final Animation<double> _fadeAnimation;
 
-  Timer? _sessionTimer;
-
   @override
   void initState() {
     super.initState();
@@ -40,7 +36,7 @@ class _SplashPageState extends State<SplashPage>
       curve: Curves.easeInOut,
     );
 
-    _sessionTimer = Timer(const Duration(seconds: 2), _checkSession);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkSession());
   }
 
   void _checkSession() {
@@ -66,7 +62,6 @@ class _SplashPageState extends State<SplashPage>
 
   @override
   void dispose() {
-    _sessionTimer?.cancel();
     _animationController.dispose();
     super.dispose();
   }

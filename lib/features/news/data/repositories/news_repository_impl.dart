@@ -14,28 +14,19 @@ class NewsRepositoryImpl implements NewsRepository {
 
   @override
   Future<List<NewsEntity>> getTopHeadlines({required int page}) async {
-    try {
-      final articles = await remoteDataSource.getTopHeadlines(page: page);
+    final articles = await remoteDataSource.getTopHeadlines(page: page);
 
-      if (page == 1) {
+    if (page == 1) {
+      try {
         await localStorageService.saveNews(
           articles.map((e) => jsonEncode(e.toJson())).toList(),
         );
+      } catch (_) {
+        // The current network response remains usable when local persistence fails.
       }
-
-      return articles.map((e) => e.toEntity()).toList();
-    } catch (_) {
-      if (page != 1) {
-        rethrow;
-      }
-
-      final cachedNews = await getCachedNews();
-      if (cachedNews.isNotEmpty) {
-        return cachedNews;
-      }
-
-      rethrow;
     }
+
+    return articles.map((e) => e.toEntity()).toList();
   }
 
   @override

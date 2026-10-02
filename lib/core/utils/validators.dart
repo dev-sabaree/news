@@ -17,7 +17,8 @@ class Validators {
     if (value == null || value.trim().isEmpty) {
       return l10n.fieldRequired;
     }
-    if (value.trim().length < 10) {
+    final normalized = value.trim().replaceAll(RegExp(r'[\s().-]'), '');
+    if (!RegExp(r'^\+?[1-9]\d{7,14}$').hasMatch(normalized)) {
       return l10n.invalidPhone;
     }
     return null;

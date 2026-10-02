@@ -1,3 +1,4 @@
+import 'package:newsapp/core/errors/exceptions.dart';
 import 'package:newsapp/features/auth/data/datasource/auth_remote_datasource.dart';
 import 'package:newsapp/features/auth/data/models/user_model.dart';
 import 'package:newsapp/features/auth/domain/entities/user_entity.dart';
@@ -21,10 +22,15 @@ class AuthRepositoryImpl implements AuthRepository {
     final user = response.user;
 
     if (user == null) {
-      throw Exception('User not found');
+      throw UnknownException(
+        'Authentication did not return a user',
+      );
     }
 
-    return UserModel.fromSupabaseUser(user.id, user.email ?? '');
+    return UserModel.fromSupabaseUser(
+      user.id,
+      user.email ?? '',
+    );
   }
 
   @override
@@ -34,7 +40,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) async {
-  
     await remoteDataSource.signUp(
       fullName: fullName,
       phone: phone,
@@ -45,19 +50,21 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
-
-
     await remoteDataSource.logout();
   }
 
   @override
-  bool get isLoggedIn => remoteDataSource.getCurrentSession() != null;
+  bool get isLoggedIn =>
+      remoteDataSource.getCurrentSession() != null;
 
   @override
   UserEntity? get currentUser {
     final user = remoteDataSource.getCurrentUser();
     if (user == null) return null;
 
-    return UserModel.fromSupabaseUser(user.id, user.email ?? '');
+    return UserModel.fromSupabaseUser(
+      user.id,
+      user.email ?? '',
+    );
   }
 }

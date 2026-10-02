@@ -33,3 +33,9 @@ class RateLimitedException implements Exception {
 
   RateLimitedException(this.message);
 }
+
+class AuthenticationException implements Exception {
+  final String message;
+
+  AuthenticationException(this.message);
+}

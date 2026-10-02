@@ -9,42 +9,26 @@ import 'package:newsapp/core/themes/app_text_styles.dart';
 import 'package:newsapp/core/themes/app_spacing.dart';
 import 'package:newsapp/core/themes/app_radius.dart';
 import 'package:newsapp/core/widgets/shimmer_widget.dart';
+import 'package:newsapp/core/utils/article_url.dart';
 
 class NewsDetailPage extends StatelessWidget {
   final NewsEntity article;
 
   const NewsDetailPage({super.key, required this.article});
 
-  String _formatDate(String raw) {
+  String _formatDate(BuildContext context, String raw) {
     try {
       final dt = DateTime.parse(raw).toLocal();
-      final months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
-      return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
+      return MaterialLocalizations.of(context).formatMediumDate(dt);
     } catch (_) {
       return raw;
     }
   }
 
   Future<void> _openArticle(BuildContext context, String fallbackText) async {
-    if (article.articleUrl.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(fallbackText),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-
     try {
-      final uri = Uri.tryParse(article.articleUrl);
-
-      if (uri == null ||
-          (uri.scheme != 'http' && uri.scheme != 'https') ||
-          uri.host.isEmpty) {
+      final uri = validatedArticleUrl(article.articleUrl);
+      if (uri == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -56,10 +40,18 @@ class NewsDetailPage extends StatelessWidget {
         return;
       }
 
-      await launchUrl(
+      final launched = await launchUrl(
         uri,
         mode: LaunchMode.externalApplication,
       );
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(fallbackText),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +82,7 @@ class NewsDetailPage extends StatelessWidget {
             actions: [
               _ActionButton(
                 icon: Icons.open_in_new_rounded,
-                onTap: () => _openArticle(context, l10n.noContent),
+                onTap: () => _openArticle(context, l10n.failedToLoad),
               ),
               const SizedBox(width: AppSpacing.sm),
             ],
@@ -194,7 +186,7 @@ class NewsDetailPage extends StatelessWidget {
                                 Text(l10n.publishedAt,
                                     style: AppTextStyles.caption),
                                 Text(
-                                  _formatDate(article.publishedAt),
+                                  _formatDate(context, article.publishedAt),
                                   style: AppTextStyles.labelMedium,
                                 ),
                               ],
@@ -234,7 +226,7 @@ class NewsDetailPage extends StatelessWidget {
                       _ReadMoreButton(
                         label: l10n.readMore,
                         onTap: () =>
-                            _openArticle(context, l10n.noContent),
+                            _openArticle(context, l10n.failedToLoad),
                       ),
 
                       const SizedBox(height: AppSpacing.xxxl),

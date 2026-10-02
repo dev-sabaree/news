@@ -12,6 +12,7 @@ import 'package:newsapp/core/connectivity/connectivity_state.dart';
 import 'package:newsapp/core/localization/localization_service.dart';
 import 'package:newsapp/core/services/connectivity_service.dart';
 import 'package:newsapp/core/services/local_storage_service.dart';
+import 'package:newsapp/core/utils/article_url.dart';
 import 'package:newsapp/dependency_injection/injection.dart';
 import 'package:newsapp/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:newsapp/features/auth/presentation/bloc/auth_state.dart';
@@ -72,6 +73,20 @@ const article = NewsEntity(
   articleUrl: 'https://example.com',
 );
 
+List<NewsEntity> articlesForPage(int page) => List.generate(
+  20,
+  (index) => NewsEntity(
+    title: 'Title $page-$index',
+    description: 'Description',
+    content: 'Content',
+    imageUrl: '',
+    author: 'Author',
+    source: 'Source',
+    publishedAt: '2026-01-01T00:00:00Z',
+    articleUrl: 'https://example.com/$page/$index',
+  ),
+);
+
 void main() {
   group('NewsBloc hardening', () {
     late MockGetTopHeadlinesUseCase headlines;
@@ -110,7 +125,10 @@ void main() {
         bloc.add(LoadMoreNews());
       },
       expect: () => [
-        const NewsLoaded(articles: [article, article]),
+        const NewsLoaded(articles: [article], isLoadingMore: true),
+        const NewsLoaded(articles: [article], paginationFailed: true),
+        const NewsLoaded(articles: [article], isLoadingMore: true),
+        const NewsLoaded(articles: [article], hasReachedMax: true),
       ],
       verify: (_) => verify(() => headlines(page: 2)).called(2),
     );
@@ -119,22 +137,21 @@ void main() {
       'paginates an active search using the next page',
       build: () {
         when(() => search(query: 'flutter', page: 1))
-            .thenAnswer((_) async => [article]);
+            .thenAnswer((_) async => articlesForPage(1));
         when(() => search(query: 'flutter', page: 2))
-            .thenAnswer((_) async => [article]);
+            .thenAnswer((_) async => articlesForPage(2));
         return buildBloc();
       },
       act: (bloc) async {
-        bloc
-          ..add(const SearchNews('flutter'))
-          ..add(LoadMoreNews());
-        await Future<void>.delayed(Duration.zero);
+        bloc.add(const SearchNews('flutter'));
+        await Future<void>.delayed(const Duration(milliseconds: 10));
         bloc.add(LoadMoreNews());
       },
       expect: () => [
         NewsLoading(),
-        const NewsLoaded(articles: [article]),
-        const NewsLoaded(articles: [article, article]),
+        NewsLoaded(articles: articlesForPage(1)),
+        NewsLoaded(articles: articlesForPage(1), isLoadingMore: true),
+        NewsLoaded(articles: [...articlesForPage(1), ...articlesForPage(2)]),
       ],
     );
 
@@ -160,7 +177,10 @@ void main() {
 
       await expectLater(
         bloc.stream,
-        emitsInOrder([NewsLoading(), const NewsLoaded(articles: [article])]),
+        emitsInOrder([
+          NewsLoading(),
+          const NewsLoaded(articles: [article], hasReachedMax: true),
+        ]),
       );
       await bloc.close();
     });
@@ -183,11 +203,11 @@ void main() {
     pendingCheck.complete(true);
     await Future<void>.delayed(Duration.zero);
 
-    expect(states, [const ConnectivityOffline()]);
-    expect(cubit.state, const ConnectivityOffline());
+    expect(states, [ConnectivityOffline()]);
+    expect(cubit.state, ConnectivityOffline());
     initialCheck.complete(false);
     await Future<void>.delayed(Duration.zero);
-    expect(states, [const ConnectivityOffline()]);
+    expect(states, [ConnectivityOffline()]);
     await subscription.cancel();
     await cubit.close();
     await changes.close();
@@ -224,11 +244,11 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byIcon(Icons.search_rounded));
+    await tester.tap(find.byIcon(Icons.search_rounded).first);
     await tester.pump();
     await tester.enterText(find.byType(TextField), 'flutter');
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
     await tester.pump(const Duration(milliseconds: 600));
 
     verifyNever(() => news.add(const SearchNews('flutter')));
@@ -283,7 +303,7 @@ void main() {
     expect(await repository.getCachedNews(), isEmpty);
   });
 
-  test('only page one falls back to valid cached headlines', () async {
+  test('headline cache is read only by the presentation fallback', () async {
     final remote = MockNewsRemoteDataSource();
     final storage = MockLocalStorageService();
     final repository = NewsRepositoryImpl(remote, storage);
@@ -292,15 +312,19 @@ void main() {
     ]);
     when(() => storage.getNewsCacheTimestamp()).thenReturn(DateTime.now());
     when(() => remote.getTopHeadlines(page: 1)).thenThrow(Exception('offline'));
-
-    expect(await repository.getTopHeadlines(page: 1), hasLength(1));
-
-    clearInteractions(storage);
-    when(() => remote.getTopHeadlines(page: 2)).thenThrow(Exception('offline'));
     await expectLater(
-      repository.getTopHeadlines(page: 2),
+      repository.getTopHeadlines(page: 1),
       throwsA(isA<Exception>()),
     );
     verifyNever(() => storage.getNews());
+  });
+
+  test('article URLs accept only absolute HTTP(S) URLs with a host', () {
+    expect(validatedArticleUrl('https://example.com/article'), isNotNull);
+    expect(validatedArticleUrl('http://example.com'), isNotNull);
+    expect(validatedArticleUrl('mailto:test@example.com'), isNull);
+    expect(validatedArticleUrl('javascript:alert(1)'), isNull);
+    expect(validatedArticleUrl('https:///missing-host'), isNull);
+    expect(validatedArticleUrl(''), isNull);
   });
 }

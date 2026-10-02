@@ -7,13 +7,23 @@ part of 'news_model.dart';
 // **************************************************************************
 
 NewsModel _$NewsModelFromJson(Map<String, dynamic> json) => NewsModel(
-  title: json['title'] as String? ?? '',
-  description: json['description'] as String? ?? '',
-  content: json['content'] as String? ?? '',
-  imageUrl: json['urlToImage'] as String? ?? '',
-  author: json['author'] as String? ?? '',
-  articleUrl: json['url'] as String? ?? '',
-  publishedAt: json['publishedAt'] as String? ?? '',
+  title: json['title'] == null ? '' : NewsModel._stringFromJson(json['title']),
+  description: json['description'] == null
+      ? ''
+      : NewsModel._stringFromJson(json['description']),
+  content: json['content'] == null
+      ? ''
+      : NewsModel._stringFromJson(json['content']),
+  imageUrl: json['urlToImage'] == null
+      ? ''
+      : NewsModel._stringFromJson(json['urlToImage']),
+  author: json['author'] == null
+      ? ''
+      : NewsModel._stringFromJson(json['author']),
+  articleUrl: json['url'] == null ? '' : NewsModel._stringFromJson(json['url']),
+  publishedAt: json['publishedAt'] == null
+      ? ''
+      : NewsModel._stringFromJson(json['publishedAt']),
   source: NewsModel._sourceFromJson(json['source']),
 );
 

@@ -5,28 +5,27 @@ part 'news_model.g.dart';
 
 @JsonSerializable()
 class NewsModel {
-  @JsonKey(defaultValue: '')
+  @JsonKey(defaultValue: '', fromJson: _stringFromJson)
   final String title;
 
-  @JsonKey(defaultValue: '')
+  @JsonKey(defaultValue: '', fromJson: _stringFromJson)
   final String description;
 
-  @JsonKey(defaultValue: '')
+  @JsonKey(defaultValue: '', fromJson: _stringFromJson)
   final String content;
 
-  @JsonKey(name: 'urlToImage', defaultValue: '')
+  @JsonKey(name: 'urlToImage', defaultValue: '', fromJson: _stringFromJson)
   final String imageUrl;
 
-  @JsonKey(defaultValue: '')
+  @JsonKey(defaultValue: '', fromJson: _stringFromJson)
   final String author;
 
-  @JsonKey(name: 'url', defaultValue: '')
+  @JsonKey(name: 'url', defaultValue: '', fromJson: _stringFromJson)
   final String articleUrl;
 
-  @JsonKey(defaultValue: '')
+  @JsonKey(defaultValue: '', fromJson: _stringFromJson)
   final String publishedAt;
 
-  // 👇 added toJson converter so source saves as Map, not String
   @JsonKey(fromJson: _sourceFromJson, toJson: _sourceToJson)
   final String source;
 
@@ -60,9 +59,8 @@ class NewsModel {
   }
 
   static String _sourceFromJson(dynamic source) {
-    // 👇 handles both Map (from API) and String (from cache)
-    if (source is Map<String, dynamic>) {
-      return source['name'] ?? '';
+    if (source is Map) {
+      return _stringFromJson(source['name']);
     }
     if (source is String) {
       return source;
@@ -70,8 +68,9 @@ class NewsModel {
     return '';
   }
 
-  // 👇 added - saves source as Map so fromJson can always read it
   static Map<String, dynamic> _sourceToJson(String source) {
     return {'name': source};
   }
+
+  static String _stringFromJson(Object? value) => value is String ? value : '';
 }
