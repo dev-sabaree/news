@@ -2,7 +2,7 @@ name: newsapp
 description: "A modern Flutter news application with authentication, search, caching, localization, and Clean Architecture."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.12.1
